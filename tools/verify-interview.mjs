@@ -241,14 +241,12 @@ if (BOOK && TB) {
     if (cjk < cjkMin) cjkMin = cjk;
     if (cjk > cjkMax) cjkMax = cjk;
     if (cjk < 180) shortBody++;
-    // 第七篇按原书体系重组，第 21 章原书本身最厚，放宽上限
-    const longLimit = /^(1[89]|2[0-2])\./.test(id) ? 1600 : 900;
-    if (cjk > longLimit) longBody++;
+    if (cjk > 900) longBody++;
   }
   if (!badRel) ok(`关联笔记引用全部有效`);
   if (!badQs) ok(`关联真题引用全部有效`);
   if (shortBody) bad(`${shortBody} 节正文过短（< 180 汉字）`);
-  if (longBody) bad(`${longBody} 节正文过长（P1-P6 > 900 汉字 / P7 > 1600 汉字）`);
+  if (longBody) bad(`${longBody} 节正文过长（> 900 汉字）`);
   ok(`正文字数（汉字）区间：${cjkMin} ~ ${cjkMax}`);
 
   // 关联覆盖率
