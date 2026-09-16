@@ -1,6 +1,6 @@
 // Service Worker：网络优先 + 离线回落
-// v4 起改为 network-first —— 在线时永远拿到最新版，断网时用缓存兜底
-const VERSION = "v4-2026-09-16";
+// v5 起改为 network-first —— 在线时永远拿到最新版，断网时用缓存兜底
+const VERSION = "v5-2026-09-16";
 const SHELL = [
   "./",
   "./index.html",
@@ -9,11 +9,21 @@ const SHELL = [
   "./assets/md.js",
   "./assets/app.js",
   "./data/index.js",
-  "./data/tree.js",
+  "./data/textbook.js",
+  "./data/tb-p0p1a.js",
+  "./data/tb-p1b.js",
+  "./data/tb-p2.js",
+  "./data/tb-p3a.js",
+  "./data/tb-p3b.js",
+  "./data/tb-p4.js",
+  "./data/tb-p5.js",
+  "./data/tb-p6.js",
   "./data/quotes.js",
   "./data/questions.js",
   "./data/media-bank.js",
   "./data/interviews.js",
+  "./data/iv-deep-s.js",
+  "./data/iv-deep-ab.js",
 ];
 
 self.addEventListener("install", (e) => {

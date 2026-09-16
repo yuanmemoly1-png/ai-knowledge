@@ -57,20 +57,19 @@ window.MD = (function () {
     while (i < lines.length) {
       const line = lines[i];
 
-      // 代码块
-      const fence = line.match(/^\s*```(\w*)/);
+      // 代码块（支持 ``` 与 ~~~ 两种围栏）
+      const fence = line.match(/^\s*(?:```|~~~)(\w*)/);
       if (fence) {
         const lang = fence[1] || "";
         const buf = [];
         i++;
-        while (i < lines.length && !/^\s*```/.test(lines[i])) buf.push(lines[i++]);
+        while (i < lines.length && !/^\s*(?:```|~~~)/.test(lines[i])) buf.push(lines[i++]);
         i++; // 跳过结束 fence
         out.push(
           `<pre class="code"${lang ? ` data-lang="${esc(lang)}"` : ""}><code>${esc(buf.join("\n"))}</code></pre>`
         );
         continue;
       }
-
       // 标题
       const h = line.match(/^(#{1,6})\s+(.*)$/);
       if (h) {
@@ -160,7 +159,7 @@ window.MD = (function () {
       while (
         i < lines.length &&
         lines[i].trim() &&
-        !/^\s*(#{1,6}\s|>|```|\||([-*+]|\d+\.)\s)/.test(lines[i]) &&
+        !/^\s*(#{1,6}\s|>|```|~~~|\||([-*+]|\d+\.)\s)/.test(lines[i]) &&
         !/^\s*(-{3,}|\*{3,}|_{3,})\s*$/.test(lines[i])
       ) {
         buf.push(lines[i++]);

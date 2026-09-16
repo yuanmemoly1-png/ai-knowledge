@@ -1,6 +1,6 @@
 // ============================================================
-// AI 面试深度站 · 应用逻辑 v2
-// 六个标签：今日 / 知识树 / 题库 / 访谈 / 笔记 / 我的
+// AI 面试深度站 · 应用逻辑 v3
+// 六个标签：今日 / 教材 / 题库 / 访谈 / 笔记 / 我的
 // ============================================================
 (function () {
   "use strict";
@@ -10,7 +10,7 @@
   const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
   const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const DAY = 864e5;
-  const APP_VERSION = "v4 · 2026-09-16";
+  const APP_VERSION = "v5 · 2026-09-16";
   const todayStr = () => new Date().toLocaleDateString("sv");
   const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
 
@@ -25,7 +25,7 @@
 
   /* ---------------- 状态 ---------------- */
   const KEY = "ai-interview-deep-v1";
-  const BLANK = () => ({ v: 1, q: {}, nodes: {}, seen: {}, text: {}, streak: { last: "", days: 0 }, theme: "dark" });
+  const BLANK = () => ({ v: 1, q: {}, nodes: {}, tb: {}, seen: {}, text: {}, streak: { last: "", days: 0 }, theme: "dark" });
   let S = BLANK();
 
   function load() {
@@ -65,6 +65,19 @@
   const MEDIA = window.MEDIA_BANK || { meta: { total: 0, sources: [] }, items: [] };
   const IVLIB = window.INTERVIEW_LIB || { tiers: [], items: [] };
   const QUOTES = window.QUOTE_BANK || [];
+  const BOOK = window.TEXTBOOK || { title: "教材", parts: [] };
+  const TB = window.TB_SECTIONS || {};
+  const IV_DEEP = window.IV_DEEP || {};
+
+  /* ---- 教材索引：节 id -> { part, chapter, idx } ---- */
+  const SEC_POS = {};
+  const ALL_SECS = [];
+  (BOOK.parts || []).forEach((p) => (p.chapters || []).forEach((c) => (c.sections || []).forEach((sid, i) => {
+    SEC_POS[sid] = { part: p, chapter: c, idx: i };
+    ALL_SECS.push({ id: sid, part: p, chapter: c });
+  })));
+  const SEC_READY = () => ALL_SECS.filter((x) => TB[x.id]).length;
+  const secTitle = (id) => (TB[id] && TB[id].t) || id;
 
   const NOTES = IDX ? IDX.notes : [];
   const NOTE_BY_PATH = {};
@@ -140,21 +153,27 @@
     qs.forEach((q) => { const st = S.q[q.id]; if (st) { sum += (st.box || 0) / 5; if (st.n > 0) done++; } });
     return { pct: Math.round((sum / qs.length) * 100), done, total: qs.length };
   }
-  function treeProgress() {
-    let total = 0, read = 0;
-    TREE.layers.forEach((L) => L.nodes.forEach((nd) => { total++; if (S.nodes[nd.id] && S.nodes[nd.id].read) read++; }));
+  function bookProgress() {
+    const total = ALL_SECS.length;
+    const read = ALL_SECS.filter((x) => S.tb[x.id] && S.tb[x.id].read).length;
     return { total, read, pct: total ? Math.round((read / total) * 100) : 0 };
+  }
+  function partProgress(part) {
+    const secs = [];
+    (part.chapters || []).forEach((c) => (c.sections || []).forEach((s) => secs.push(s)));
+    const read = secs.filter((s) => S.tb[s] && S.tb[s].read).length;
+    return { total: secs.length, read, pct: secs.length ? Math.round((read / secs.length) * 100) : 0 };
   }
   function bankProgress() {
     let done = 0;
     BANK.questions.forEach((q) => { if (S.q[q.id] && S.q[q.id].n > 0) done++; });
     return { done, total: BANK.questions.length };
   }
-  function nextTreeNodes(n) {
+  function nextSections(n) {
     const out = [];
-    for (const L of TREE.layers) for (const nd of L.nodes) {
+    for (const x of ALL_SECS) {
       if (out.length >= n) return out;
-      if (!(S.nodes[nd.id] && S.nodes[nd.id].read)) out.push({ layer: L, node: nd });
+      if (!(S.tb[x.id] && S.tb[x.id].read)) out.push(x);
     }
     return out;
   }
@@ -178,13 +197,13 @@
   /* ---------------- 路由 ---------------- */
   const TABS = [
     { id: "today", icon: "◎", label: "今日" },
-    { id: "tree", icon: "❖", label: "知识" },
+    { id: "book", icon: "❖", label: "教材" },
     { id: "bank", icon: "✦", label: "题库" },
     { id: "iv", icon: "▶", label: "访谈" },
     { id: "notes", icon: "▤", label: "笔记" },
     { id: "me", icon: "◇", label: "我的" },
   ];
-  const MAP = { today: "today", tree: "tree", bank: "bank", iv: "iv", notes: "notes", me: "me", q: "bank", mq: "bank", note: "notes", ivd: "iv" };
+  const MAP = { today: "today", book: "book", tree: "book", bank: "bank", iv: "iv", notes: "notes", me: "me", q: "bank", mq: "bank", note: "notes", ivd: "iv", tb: "book" };
 
   const go = (h) => (location.hash = h);
   function parse() {
@@ -204,8 +223,9 @@
     else if (seg === "mq") renderMediaQuestion(rest[0]);
     else if (seg === "note") renderNotes(rest.join("/"));
     else if (seg === "ivd") renderInterviewDetail(rest[0]);
+    else if (seg === "tb") renderBook(rest[0], rest[1]);
     else if (tab === "today") renderToday();
-    else if (tab === "tree") renderTree(rest[0]);
+    else if (tab === "book") renderBook(rest[0], rest[1]);
     else if (tab === "bank") renderBank(rest[0], rest[1]);
     else if (tab === "iv") renderInterviews();
     else if (tab === "notes") renderNotes();
@@ -250,9 +270,9 @@
 
   /* ================= 今日 ================= */
   function renderToday() {
-    const tp = treeProgress(), bp = bankProgress();
+    const tp = bookProgress(), bp = bankProgress();
     const due = dueList();
-    const todo = nextTreeNodes(3);
+    const todo = nextSections(3);
     const d = new Date();
     const week = "日一二三四五六"[d.getDay()];
     const mods = BANK.modules.map((m) => ({ m, s: masteryOf(m.id) })).filter((x) => x.s.total).sort((a, b) => a.s.pct - b.s.pct).slice(0, 3);
@@ -265,18 +285,18 @@
             <h1>今天只做三件事</h1>
             <p>深读一个节点 · 钻一道题 · 复习到期的。<br>不求多，求讲得出来。</p>
           </div>
-          ${RING(tp.pct, "知识树")}
+          ${RING(tp.pct, "教材")}
         </div>
         <div class="hero-stats">
-          <div class="hstat"><b>${tp.read}<span style="font-size:13px;color:var(--tx3)">/${tp.total}</span></b><span>节点已深读</span></div>
+          <div class="hstat"><b>${tp.read}<span style="font-size:13px;color:var(--tx3)">/${tp.total}</span></b><span>节已学</span></div>
           <div class="hstat"><b>${bp.done}<span style="font-size:13px;color:var(--tx3)">/${bp.total}</span></b><span>精讲题已练</span></div>
           <div class="hstat"><b>${due.length}</b><span>今日到期复习</span></div>
         </div>
       </div>
 
       <div class="tiles">
-        <button class="tile hot" data-random="1"><i>✦</i><b>随机抽题</b><span>从 869 题里掷一次</span></button>
-        <button class="tile" data-go="#/bank?mock=1"><i>⏱</i><b>模拟面试</b><span>5 题连考</span></button>
+        <button class="tile hot" data-go="${todo.length ? `#/book/${todo[0].part.id}/${todo[0].id}` : "#/book"}"><i>❖</i><b>${todo.length ? "继续学教材" : "教材目录"}</b><span>${esc(BOOK.title)} ${ALL_SECS.length} 节</span></button>
+        <button class="tile" data-random="1"><i>✦</i><b>随机抽题</b><span>从 ${BANK.questions.length + MEDIA.meta.total} 题里掷一次</span></button>
         <button class="tile" data-go="#/iv"><i>▶</i><b>访谈精选</b><span>${IVLIB.items.length} 场一线访谈</span></button>
       </div>
 
@@ -292,16 +312,16 @@
         ${due.length > 3 ? `<button class="btn ghost block sm" data-go="#/bank">查看全部 ${due.length} 道到期 →</button>` : ""}</div>`
       : `<div class="card"><div class="empty" style="padding:16px 4px"><i>🫧</i>今天没有到期题目。<br>做过的题会按 6 小时 / 1 / 3 / 7 / 15 / 30 天回来找你。</div></div>`}
 
-      <div class="sec">📚 继续深读</div>
+      <div class="sec">📚 继续往下学</div>
       <div class="rows">
         ${todo.map((x) => `
-          <button class="row" data-go="#/tree/${x.layer.id}">
-            <span class="row-i">${esc(x.layer.no.replace("第 ", "").replace(" 层", ""))}</span>
+          <button class="row" data-go="#/book/${x.part.id}/${x.id}">
+            <span class="row-i">${esc(x.id)}</span>
             <span class="row-b">
-              <span class="row-t">${esc(x.node.t)}</span>
-              <span class="row-m">${esc(x.layer.title)} · ${esc(x.node.id)}</span>
+              <span class="row-t">${esc(secTitle(x.id))}</span>
+              <span class="row-m">${esc(x.part.no)} · ${esc(x.chapter.title)}</span>
             </span><span class="row-x">›</span>
-          </button>`).join("") || `<div class="card muted">知识树已全部读过 🎉 回到题库巩固，或去访谈里找新东西。</div>`}
+          </button>`).join("") || `<div class="card muted">教材已经全部学过一遍 🎉 回题库巩固，或去访谈里找新东西。</div>`}
       </div>
 
       ${mods.length ? `<div class="sec">📉 最该补的模块</div>
@@ -320,51 +340,160 @@
     if (r) r.onclick = () => { const q = BANK.questions[Math.floor(Math.random() * BANK.questions.length)]; go("#/q/" + q.id); };
   }
 
-  /* ================= 知识树 ================= */
-  function renderTree(openLayer) {
-    $("#view-tree").innerHTML = `
+  /* ================= 教材 ================= */
+  function renderBook(partId, secId) {
+    if (secId) return renderSection(decodeURIComponent(secId));
+    if (partId) return renderPart(partId);
+
+    const bp = bookProgress();
+    const ready = SEC_READY();
+    $("#view-book").innerHTML = `
       <div class="hero">
         <div class="hero-top">
           <div style="flex:1;min-width:0">
-            <div class="kicker">深度学习主干</div>
-            <h1>${esc(TREE.title)}</h1>
-            <p>${esc(TREE.subtitle)}</p>
+            <div class="kicker">按学习顺序重排的完整教材</div>
+            <h1>${esc(BOOK.title)}</h1>
+            <p>${esc(BOOK.subtitle)}<br>六篇 ${ALL_SECS.length} 节，从「没写过代码」一路排到「能去面试」。</p>
           </div>
-          ${RING(treeProgress().pct, "已深读")}
+          ${RING(bp.pct, "已学")}
+        </div>
+        <div class="hero-stats">
+          <div class="hstat"><b>${bp.read}<span style="font-size:13px;color:var(--tx3)">/${bp.total}</span></b><span>节已学</span></div>
+          <div class="hstat"><b>${(BOOK.parts || []).length}</b><span>篇</span></div>
+          <div class="hstat"><b>${ready}</b><span>节有正文</span></div>
         </div>
       </div>
-      ${TREE.layers.map((L, i) => `
-        <details class="layer" ${openLayer === L.id || (!openLayer && i === 0) ? "open" : ""}>
+
+      <div class="card" style="border-left:3px solid var(--teal)">
+        <div class="sec" style="margin:0 0 8px">📐 怎么用这本教材</div>
+        <div class="muted" style="line-height:1.8">
+          <b style="color:var(--tx)">顺着读，别跳。</b>每节 5-10 分钟：先看「为什么学」和「学完的标志」，再读讲义，最后点「标记已学」。<br>
+          每节末尾的<b style="color:var(--tx)">配套真题</b>去题库当面练一遍；<b style="color:var(--tx)">关联笔记</b>是想深挖时再点，不必每篇都读。
+        </div>
+      </div>
+
+      ${(BOOK.parts || []).map(partCard).join("")}
+    `;
+  }
+
+  function partCard(p) {
+    const pr = partProgress(p);
+    const chCount = (p.chapters || []).length;
+    return `<button class="tb-part" data-go="#/book/${p.id}">
+      <div class="tb-part-top">
+        <span class="tb-part-no">${esc(p.no)}</span>
+        <span class="tb-part-t">${esc(p.title)}</span>
+        <span class="tb-pct">${pr.read}/${pr.total}</span>
+      </div>
+      ${p.goal ? `<div class="tb-goal">🎯 ${esc(p.goal)}</div>` : ""}
+      <div class="meter" style="margin-top:11px"><i class="${pr.pct < 34 ? "bad" : pr.pct < 67 ? "warn" : "ok"}" style="width:${pr.pct}%"></i></div>
+      <div class="tb-part-m">${chCount > 1 ? chCount + " 章 · " : ""}${pr.total} 节</div>
+    </button>`;
+  }
+
+  function renderPart(partId) {
+    const p = (BOOK.parts || []).find((x) => x.id === partId);
+    if (!p) { go("#/book"); return; }
+    const pr = partProgress(p);
+    $("#view-book").innerHTML = `
+      <div class="crumb" data-go="#/book">‹ 教材目录</div>
+      <div class="hero">
+        <div class="hero-top">
+          <div style="flex:1;min-width:0">
+            <div class="kicker">${esc(p.no)}</div>
+            <h1>${esc(p.title)}</h1>
+            ${p.goal ? `<p>🎯 ${esc(p.goal)}</p>` : ""}
+          </div>
+          ${RING(pr.pct, "已学")}
+        </div>
+      </div>
+      ${(p.chapters || []).map((c, i) => `
+        <details class="layer" ${i === 0 ? "open" : ""}>
           <summary>
-            <span class="no">${esc(L.no)}</span>
-            <span class="lt">${esc(L.title)}<div class="q">${esc(L.question)} → <b style="color:var(--teal)">${esc(L.answer)}</b></div></span>
+            <span class="no">${esc(c.no)}</span>
+            <span class="lt">${esc(c.title)}<div class="q">${(c.sections || []).length} 节</div></span>
             <span class="arrow">›</span>
           </summary>
           <div class="layer-body">
-            <p class="muted" style="margin:12px 0 4px">${esc(L.intro)}</p>
-            ${L.nodes.map((nd) => nodeHTML(nd)).join("")}
+            ${c.intro ? `<p class="muted" style="margin:12px 4px 8px">${esc(c.intro)}</p>` : ""}
+            ${(c.sections || []).map((sid) => secRow(sid, p.id)).join("")}
           </div>
         </details>`).join("")}
     `;
   }
-  function nodeHTML(nd) {
-    const st = S.nodes[nd.id] || {};
-    return `<div class="node" id="node-${esc(nd.id)}">
-      <div class="tag-row">
-        <span class="tag">${esc(nd.id)}</span>
-        ${st.read ? '<span class="tag done">✓ 已深读</span>' : ""}
+
+  function secRow(sid, partId) {
+    const s = TB[sid];
+    const st = S.tb[sid] || {};
+    return `<button class="tb-sec ${st.read ? "done" : ""}" data-go="#/book/${partId}/${sid}">
+      <span class="tb-no">${esc(sid)}</span>
+      <span class="tb-b">
+        <span class="tb-t">${esc(s ? s.t : sid)}</span>
+        <span class="tb-why">${s && s.why ? esc(s.why) : "正文待补"}</span>
+      </span>
+      <span class="tb-x">${st.read ? "✓" : "›"}</span>
+    </button>`;
+  }
+
+  function renderSection(sid) {
+    const s = TB[sid];
+    const pos = SEC_POS[sid];
+    if (!s || !pos) { toast("这一节还没有正文"); go("#/book"); return; }
+    const st = S.tb[sid] || {};
+    const idx = ALL_SECS.findIndex((x) => x.id === sid);
+    const prev = idx > 0 ? ALL_SECS[idx - 1] : null;
+    const next = idx >= 0 && idx < ALL_SECS.length - 1 ? ALL_SECS[idx + 1] : null;
+    const qs = (s.qs || []).map((id) => QBYID[id]).filter(Boolean);
+    const rels = (s.rel || []).filter((p) => NOTE_BY_PATH[p]);
+
+    $("#view-book").innerHTML = `
+      <div class="crumb" data-go="#/book/${pos.part.id}">‹ ${esc(pos.part.no)} · ${esc(pos.chapter.title)}</div>
+      <div class="hero">
+        <div class="hero-top">
+          <div style="flex:1;min-width:0">
+            <div class="kicker">${esc(pos.part.no)} · ${esc(pos.chapter.no)} · 第 ${pos.idx + 1} 节</div>
+            <h1 style="font-size:21px">${esc(sid)}　${esc(s.t)}</h1>
+          </div>
+        </div>
       </div>
-      <h4 style="margin-top:9px">${esc(nd.t)}</h4>
-      <div class="claim">${MD.inline(nd.claim)}</div>
-      <ul>${nd.points.map((p) => `<li>${MD.inline(p)}</li>`).join("")}</ul>
-      ${(nd.ev || []).map((e) => evHTML(e)).join("")}
-      ${(nd.notes || []).filter((p) => NOTE_BY_PATH[p]).length ? `<div class="note-links">${nd.notes.filter((p) => NOTE_BY_PATH[p]).map(NOTE_BTN).join("")}</div>` : ""}
-      ${st.note ? `<div class="practice" style="margin-top:11px">我的理解：${esc(st.note)}</div>` : ""}
-      <div class="btn-row" style="margin-top:12px">
-        <button class="btn sm ${st.read ? "ghost" : "ok"}" data-read="${esc(nd.id)}">${st.read ? "取消已读" : "✓ 标记已深读"}</button>
-        <button class="btn sm ghost" data-mynote="${esc(nd.id)}">✍️ 写一句自己的话</button>
+
+      ${s.why ? `<div class="tb-panel why"><b>为什么学这节</b><span>${esc(s.why)}</span></div>` : ""}
+      ${s.learn ? `<div class="tb-panel learn"><b>学完的标志</b><span>${esc(s.learn)}</span></div>` : ""}
+
+      <div class="card tb-body">${MD.render(s.body || "")}</div>
+
+      ${(s.keypoints || []).length ? `<div class="sec">🔑 必须记住的结论</div>
+      <div class="card"><ul class="iv-take" style="margin:0">${s.keypoints.map((k) => `<li>${MD.inline(k)}</li>`).join("")}</ul></div>` : ""}
+
+      ${(s.pitfalls || []).length ? `<div class="sec">⚠️ 最容易错的地方</div>
+      <div class="card"><ul class="iv-take" style="margin:0">${s.pitfalls.map((k) => `<li>${MD.inline(k)}</li>`).join("")}</ul></div>` : ""}
+
+      ${(s.ev || []).length ? `<div class="sec">💬 访谈证据</div><div class="card">${s.ev.map(evHTML).join("")}</div>` : ""}
+
+      ${qs.length ? `<div class="sec">🎤 配套真题（去练一遍）</div>
+      <ul class="qlist">${qs.map((q) => `<li><button class="qitem" data-go="#/q/${q.id}">
+        <div class="qt">${esc(q.q)}</div>
+        <div class="qm"><span class="tag ${q.freq === "high" ? "hot" : ""}">${q.freq === "high" ? "🔥 高频" : "题目"}</span><span class="tag">${esc((MOD[q.mod] || {}).name || q.mod)}</span><span class="tag">Lv${q.lv}</span></div>
+      </button></li>`).join("")}</ul>` : ""}
+
+      ${rels.length ? `<div class="sec">📖 想深挖就读这几篇</div>
+      <div class="card"><div class="note-links">${rels.map(NOTE_BTN).join("")}</div></div>` : ""}
+
+      <div class="sec">✅ 学完了吗</div>
+      <div class="card">
+        ${st.note ? `<div class="practice" style="margin-bottom:12px">我的理解：${esc(st.note)}</div>` : ""}
+        <div class="btn-row">
+          <button class="btn ${st.read ? "ghost" : "ok"}" data-tbread="${esc(sid)}">${st.read ? "取消已学" : "✓ 标记已学"}</button>
+          <button class="btn ghost" data-tbnote="${esc(sid)}">✍️ 写一句我自己的话</button>
+        </div>
+        <div class="muted" style="margin-top:11px">讲不出来就不算学会。点右边那句，用你自己的话把这一节复述一遍。</div>
       </div>
-    </div>`;
+
+      <div class="btn-row" style="margin:14px 0 30px">
+        ${prev ? `<button class="btn sm" data-go="#/book/${prev.part.id}/${prev.id}">‹ ${esc(prev.id)} ${esc(secTitle(prev.id))}</button>` : ""}
+        ${next ? `<button class="btn sm" data-go="#/book/${next.part.id}/${next.id}">${esc(next.id)} ${esc(secTitle(next.id))} ›</button>` : ""}
+      </div>
+    `;
   }
 
   /* ================= 题库 ================= */
@@ -761,10 +890,44 @@
       ${(i.quotes || []).length ? `<div class="iv-quote"><div class="q-zh">「${esc(i.quotes[0].zh)}」</div>${i.quotes[0].en ? `<div class="q-en">“${esc(i.quotes[0].en)}”</div>` : ""}</div>` : ""}
       <div class="tag-row" style="margin-top:11px">
         <span class="tag ${st.c}">${esc(st.t)}</span>
+        ${IV_DEEP[i.id] ? '<span class="tag hot">🧠 AI 深度思考</span>' : ""}
         ${i.note ? '<span class="tag done">📖 有完整笔记</span>' : ""}
         ${(i.topics || []).slice(0, 3).map((t) => `<span class="tag">${esc(t)}</span>`).join("")}
       </div>
     </div>`;
+  }
+
+  /* ---- AI 深度思考 ---- */
+  const DEEP_TAG_CLASS = { "证据扎实": "ok", "经验之谈": "", "有争议": "hot", "需要条件": "mid" };
+  function ivDeepHTML(id) {
+    const d = IV_DEEP[id];
+    if (!d) return "";
+    const row = (label, icon, text) => text
+      ? `<div class="dp-row"><div class="dp-k">${icon} ${label}</div><div class="dp-v">${MD.inline(text)}</div></div>`
+      : "";
+    const claims = d.claims || [];
+    return `
+      <div class="sec">🧠 AI 深度思考</div>
+      <div class="card dp">
+        <div class="muted" style="margin-bottom:12px;line-height:1.7">下面这一层不是复述嘉宾说了什么，而是追问：<b style="color:var(--tx)">它为什么成立、边界在哪、谁不同意、对你意味着什么。</b></div>
+        ${d.verdict ? `<div class="dp-verdict">${MD.inline(d.verdict)}</div>` : ""}
+        ${row("核心论断", "🎯", d.thesis)}
+        ${row("为什么成立", "🔗", d.reasoning)}
+        ${row("边界在哪", "⚠️", d.boundary)}
+        ${row("反方观点", "↔️", d.counter)}
+        ${row("对你的含义", "🧭", d.meaning)}
+        ${row("可检验的动作", "✅", d.action)}
+      </div>
+      ${claims.length ? `<div class="sec">🔍 论断级拆解 <span class="n">${claims.length}</span></div>
+      ${claims.map((c, n) => `<div class="card dp-claim">
+        <div class="dp-claim-top">
+          <span class="dp-no">${n + 1}</span>
+          ${c.tag ? `<span class="tag ${DEEP_TAG_CLASS[c.tag] || ""}">${esc(c.tag)}</span>` : ""}
+        </div>
+        <div class="dp-c">${esc(c.c)}</div>
+        <div class="dp-a">${MD.inline(c.a)}</div>
+      </div>`).join("")}` : ""}
+    `;
   }
 
   function renderInterviewDetail(id) {
@@ -805,6 +968,8 @@
 
       ${(i.keyPoints || []).length ? `<div class="sec">🔑 核心要点</div>
       <div class="card"><ul class="iv-take" style="margin:0">${i.keyPoints.map((k) => `<li>${esc(k)}</li>`).join("")}</ul></div>` : ""}
+
+      ${ivDeepHTML(i.id)}
 
       ${(i.quotes || []).length ? `<div class="sec">💬 可直接引用的金句</div>
       <div class="card">${i.quotes.map((q) => `<div class="iv-quote" style="margin-top:10px"><div class="q-zh">「${esc(q.zh)}」</div>${q.en ? `<div class="q-en">“${esc(q.en)}”</div>` : ""}</div>`).join("")}</div>` : ""}
@@ -891,7 +1056,7 @@
 
   /* ================= 我的 ================= */
   function renderMe() {
-    const tp = treeProgress(), bp = bankProgress(), due = dueList().length;
+    const tp = bookProgress(), bp = bankProgress(), due = dueList().length;
     let answers = 0;
     BANK.questions.forEach((q) => { if (S.q[q.id]) answers += S.q[q.id].n || 0; });
     const mods = BANK.modules.map((m) => ({ m, s: masteryOf(m.id) })).filter((x) => x.s.total);
@@ -917,7 +1082,7 @@
       </div>
 
       <div class="grid2">
-        <div class="kpi"><b>${tp.read}/${tp.total}</b><span>知识树节点已深读</span></div>
+        <div class="kpi"><b>${tp.read}/${tp.total}</b><span>教材已学节数</span></div>
         <div class="kpi"><b>${bp.done}/${bp.total}</b><span>精讲题已练过</span></div>
         <div class="kpi"><b>${readNotes}</b><span>读过的笔记</span></div>
         <div class="kpi"><b>${ivDone}</b><span>可读的访谈笔记</span></div>
@@ -942,9 +1107,11 @@
       <div class="sec">✍️ 我写的理解 ${notesList.length}</div>
       <div class="card">
         ${notesList.length ? notesList.map((k) => {
-          const label = k.startsWith("q_") ? (QBYID[k.slice(2)] ? QBYID[k.slice(2)].q : k) : k;
+          let label = k;
+          if (k.startsWith("q_")) label = QBYID[k.slice(2)] ? QBYID[k.slice(2)].q : k;
+          else if (k.startsWith("tb_")) label = secTitle(k.slice(3)) + "（" + k.slice(3) + "）";
           return `<div class="kv" style="display:block"><div style="color:var(--tx3);font-size:12.4px">${esc(String(label).slice(0, 70))}</div><div style="margin-top:4px">${esc(S.text[k])}</div></div>`;
-        }).join("") : '<div class="empty" style="padding:14px 4px"><i>✍️</i>还没有。做题时点「写下我自己的理解」，用自己的话讲一遍——这就是费曼检验。</div>'}
+        }).join("") : '<div class="empty" style="padding:14px 4px"><i>✍️</i>还没有。教材每节底部、做题时都能点「写一句我自己的话」，用自己的话讲一遍——这就是费曼检验。</div>'}
       </div>
 
       <div class="sec">⚙️ 设置与存档</div>
@@ -955,7 +1122,7 @@
           <button class="btn" id="imp">📥 导入存档</button>
         </div>
         <button class="btn ghost block" id="reset" style="margin-top:9px">🧹 清空进度</button>
-        <div class="muted" style="margin-top:11px">共 ${BANK.questions.length} 精讲题 + ${MEDIA.meta.total} 媒体题 / ${tp.total} 个知识树节点 / ${IVLIB.items.length} 场访谈。存档为 JSON，可复制到手机浏览器粘贴导入。</div>
+        <div class="muted" style="margin-top:11px">共 ${ALL_SECS.length} 节教材 + ${BANK.questions.length} 精讲题 + ${MEDIA.meta.total} 媒体题 / ${NOTES.length} 篇笔记 / ${IVLIB.items.length} 场访谈（其中 ${Object.keys(IV_DEEP).length} 场带 AI 深度思考）。存档为 JSON，可复制到手机浏览器粘贴导入。</div>
       </div>
 
       <div class="sec">🔗 其它学习站</div>
@@ -997,20 +1164,24 @@
 
   /* ================= 全局事件 ================= */
   document.addEventListener("click", (e) => {
-    const t = e.target.closest("[data-go],[data-note],[data-read],[data-mynote]");
+    const t = e.target.closest("[data-go],[data-note],[data-tbread],[data-tbnote]");
     if (!t) return;
     if (t.dataset.go) { go(t.dataset.go); return; }
     if (t.dataset.note) { go("#/note/" + encodeURIComponent(t.dataset.note)); return; }
-    if (t.dataset.read) {
-      const id = t.dataset.read;
-      if (!S.nodes[id]) S.nodes[id] = {};
-      S.nodes[id].read = !S.nodes[id].read;
-      if (S.nodes[id].read) touchStreak();
-      save(); renderTree(); paintTop();
-      toast(S.nodes[id].read ? "已标记深读 ✓" : "已取消");
+    if (t.dataset.tbread) {
+      const id = t.dataset.tbread;
+      if (!S.tb[id]) S.tb[id] = {};
+      S.tb[id].read = !S.tb[id].read;
+      if (S.tb[id].read) touchStreak();
+      save();
+      const pos = SEC_POS[id];
+      renderSection(id);
+      if (pos) go("#/book/" + pos.part.id + "/" + id);
+      paintTop();
+      toast(S.tb[id].read ? "已标记已学 ✓" : "已取消");
       return;
     }
-    if (t.dataset.mynote) askMyNote("n_" + t.dataset.mynote, "我对这个节点的理解");
+    if (t.dataset.tbnote) askMyNote("tb_" + t.dataset.tbnote, "我对这一节的理解");
   });
   document.addEventListener("click", (e) => {
     const a = e.target.closest("a.wl");
@@ -1023,7 +1194,7 @@
 
   /* ================= 启动 ================= */
   function boot() {
-    if (!IDX || !BANK || !TREE) {
+    if (!IDX || !BANK) {
       document.body.innerHTML = '<div style="padding:40px;font-family:sans-serif;color:#eee">数据未加载：请先运行 <code>node tools/build-interview.mjs</code> 生成 interview/data/。</div>';
       return;
     }

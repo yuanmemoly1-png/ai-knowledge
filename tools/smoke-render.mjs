@@ -12,6 +12,7 @@ const ROOT = path.resolve(__dirname, "..");
 const DATA = path.join(ROOT, "interview", "data");
 
 let fail = 0;
+const ok = (m) => console.log("  ✓ " + m);
 const bad = (m) => { fail++; console.log("  ✗ " + m); };
 
 /* ---------- 最小 DOM 垫片 ---------- */
@@ -95,15 +96,23 @@ console.log(`\n已加载：${dataFiles.length} 个数据文件 + md.js + app.js`
 const enc = (p) => encodeURIComponent(p);
 const ROUTES = [
   ["今日", "#/today", "view-today"],
-  ["知识树", "#/tree", "view-tree"],
-  ["知识树(指定层)", "#/tree/L1", "view-tree"],
+  ["教材首页", "#/book", "view-book"],
+  ["教材·第一篇", "#/book/P1", "view-book"],
+  ["教材·附录篇", "#/book/PX", "view-book"],
+  ["教材·首节", "#/book/C0/0.1", "view-book"],
+  ["教材·代码节", "#/book/C3/3.5", "view-book"],
+  ["教材·Agent节", "#/book/C8/8.7", "view-book"],
+  ["教材·附录短节", "#/book/PX/A", "view-book"],
+  ["教材·末节", "#/book/P6/D", "view-book"],
+  ["教材·旧链接兼容", "#/tree", "view-book"],
   ["题库·精讲", "#/bank", "view-bank"],
   ["题库·媒体", "#/bank?src=media", "view-bank"],
   ["题目深钻", "#/q/tf-02", "view-bank"],
   ["题目深钻(无追问)", "#/q/pt-01", "view-bank"],
   ["媒体题目", "#/mq/m1", "view-bank"],
   ["访谈列表", "#/iv", "view-iv"],
-  ["访谈详情", "#/ivd/natalie-fde", "view-iv"],
+  ["访谈详情(S级·有深度思考)", "#/ivd/kevin-weil", "view-iv"],
+  ["访谈详情(A级·有深度思考)", "#/ivd/natalie-fde", "view-iv"],
   ["访谈详情(无笔记)", "#/ivd/marty-cagan", "view-iv"],
   ["笔记列表", "#/notes", "view-notes"],
   ["笔记(知识库)", "#/note/" + enc("01-名词与概念/RAG检索增强生成.md"), "view-notes"],
@@ -136,6 +145,68 @@ const results = [];
     } catch (e) {
       bad(`${name}（${hash}）抛出异常：${e && e.message}`);
       results.push({ name, hash, len: 0, err: true });
+    }
+  }
+
+  /* ---------- 内容断言（教材 / 深度思考） ---------- */
+  console.log("\n内容断言：");
+  const MD = sandbox.MD, TB = sandbox.TB_SECTIONS, BOOK = sandbox.TEXTBOOK, DEEP = sandbox.IV_DEEP;
+  if (!MD || !TB || !BOOK) bad("MD / TB_SECTIONS / TEXTBOOK 未挂载");
+  else {
+    const ids = Object.keys(TB);
+    let thrown = 0, empty = 0, codeSec = 0, tableSec = 0, cjkTotal = 0;
+    for (const id of ids) {
+      let html = "";
+      try { html = MD.render(TB[id].body || ""); } catch (e) { bad(`${id}: MD.render 抛异常 ${e.message}`); thrown++; continue; }
+      if (html.replace(/<[^>]+>/g, "").trim().length < 80) { bad(`${id}: 渲染后正文过短`); empty++; }
+      if (html.includes('<pre class="code"')) codeSec++;
+      if (html.includes("<table>")) tableSec++;
+      cjkTotal += (String(TB[id].body).match(/[\u4e00-\u9fa5]/g) || []).length;
+    }
+    if (!thrown && !empty) ok(`${ids.length} 节讲义全部渲染成功，合计 ${(cjkTotal / 1000).toFixed(1)}k 汉字`);
+    ok(`含代码块的节 ${codeSec} 个 / 含表格的节 ${tableSec} 个`);
+    if (codeSec < 20) bad(`代码块覆盖过少（${codeSec} 节），疑似 ~~~ 围栏未被 md.js 识别`);
+
+    // 教材首页
+    sandbox.location.hash = "#/book";
+    for (const fn of hashFns) await fn();
+    const home = elCache["#view-book"]._html || "";
+    const missPart = (BOOK.parts || []).filter((p) => !home.includes(p.title));
+    if (missPart.length) bad(`教材首页缺篇: ${missPart.map((p) => p.id).join(", ")}`);
+    else ok(`教材首页列出全部 ${(BOOK.parts || []).length} 篇`);
+
+    // 每一篇页面
+    let pBad = 0;
+    for (const p of BOOK.parts || []) {
+      sandbox.location.hash = "#/book/" + p.id;
+      for (const fn of hashFns) await fn();
+      if (!((elCache["#view-book"]._html || "").length > 150)) { bad(`篇页渲染失败: ${p.id}`); pBad++; }
+    }
+    if (!pBad) ok(`全部 ${(BOOK.parts || []).length} 个篇页渲染正常`);
+
+    // 每一节详情页
+    const secPos = {};
+    (BOOK.parts || []).forEach((p) => (p.chapters || []).forEach((c) => (c.sections || []).forEach((s) => (secPos[s] = p.id))));
+    let secBad = 0;
+    for (const id of ids) {
+      sandbox.location.hash = "#/book/" + (secPos[id] || "P1") + "/" + id;
+      for (const fn of hashFns) await fn();
+      if (!((elCache["#view-book"]._html || "").length > 300)) { bad(`节页渲染失败: ${id}`); secBad++; }
+    }
+    if (!secBad) ok(`全部 ${ids.length} 节详情页渲染正常`);
+
+    // 访谈 AI 深度思考
+    if (!DEEP) bad("IV_DEEP 未挂载");
+    else {
+      const deepIds = Object.keys(DEEP);
+      let dbad = 0;
+      for (const id of deepIds) {
+        sandbox.location.hash = "#/ivd/" + id;
+        for (const fn of hashFns) await fn();
+        const h = elCache["#view-iv"]._html || "";
+        if (!h.includes("AI 深度思考")) { bad(`访谈详情未渲染深度思考: ${id}`); dbad++; }
+      }
+      if (!dbad) ok(`${deepIds.length} 场访谈详情页均渲染出「AI 深度思考」区块`);
     }
   }
 
