@@ -2,8 +2,12 @@
 
 一个**手机优先、可离线**的 AI 求职深度学习站，直接部署在 GitHub Pages 上，手机加书签/添加到主屏幕即可随时学习。
 
-> 网址：`https://huyuchen092-stack.github.io/ai-knowledge/`
-> 主站：`.../interview/`（根路径会自动跳转）
+> **线上地址**：https://yuanmemoly1-png.github.io/ai-knowledge/
+> **主站**：https://yuanmemoly1-png.github.io/ai-knowledge/interview/
+> **仓库**：https://github.com/yuanmemoly1-png/ai-knowledge
+>
+> 根路径是一个入口页（主站 + 学习站 + 冒险岛 + 学检场），也可以直接收藏 `interview/` 那个地址。
+> 手机上建议：用浏览器打开后「添加到主屏幕」，即成为一个可离线使用的 App。
 
 ---
 
