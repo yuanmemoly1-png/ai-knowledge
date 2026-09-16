@@ -1,0 +1,542 @@
+/* AI 冒险岛 · 练习场 —— 深色冒险风 */
+:root {
+  --bg: #0f1226;
+  --bg2: #1a1f3a;
+  --card: #232947;
+  --card-hover: #2a3157;
+  --border: #39406b;
+  --text: #e8eaff;
+  --text-dim: #9aa0c7;
+  --accent: #8b5cf6;
+  --accent2: #38bdf8;
+  --gold: #fbbf24;
+  --green: #34d399;
+  --red: #f87171;
+  --mono: "Cascadia Code", "JetBrains Mono", Consolas, "Courier New", monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  background-image:
+    radial-gradient(ellipse at 20% -10%, rgba(139, 92, 246, 0.18), transparent 55%),
+    radial-gradient(ellipse at 85% 110%, rgba(56, 189, 248, 0.12), transparent 50%);
+  color: var(--text);
+  font-family: "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+  min-height: 100vh;
+  line-height: 1.7;
+}
+
+/* ---------- 顶栏 ---------- */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 14px 24px;
+  background: rgba(26, 31, 58, 0.9);
+  border-bottom: 2px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  backdrop-filter: blur(6px);
+}
+
+.logo {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  color: var(--text);
+  text-decoration: none;
+  text-shadow: 0 0 12px rgba(139, 92, 246, 0.6);
+}
+
+.logo span { color: var(--accent2); }
+
+.xp-area {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 220px;
+}
+
+.level-badge {
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border-radius: 8px;
+  padding: 2px 10px;
+  font-weight: 800;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.xp-bar {
+  flex: 1;
+  height: 12px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  min-width: 120px;
+}
+
+.xp-fill {
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, var(--gold), #fde68a);
+  border-radius: 8px;
+  transition: width 0.8s ease;
+  box-shadow: 0 0 8px rgba(251, 191, 36, 0.7);
+}
+
+.xp-text { font-size: 12px; color: var(--text-dim); white-space: nowrap; }
+
+/* ---------- 通用 ---------- */
+.page { max-width: 1080px; margin: 0 auto; padding: 28px 20px 60px; }
+
+.section-title {
+  font-size: 22px;
+  margin: 28px 0 14px;
+  letter-spacing: 2px;
+  text-shadow: 3px 3px 0 rgba(139, 92, 246, 0.35);
+}
+
+.back-link {
+  color: var(--accent2);
+  text-decoration: none;
+  font-size: 14px;
+}
+.back-link:hover { text-decoration: underline; }
+
+/* ---------- 课程卡片 ---------- */
+.lesson-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 18px;
+}
+
+.lesson-card {
+  display: block;
+  background: var(--card);
+  border: 2px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+  text-decoration: none;
+  color: var(--text);
+  transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+  position: relative;
+}
+
+.lesson-card:hover { transform: translateY(-3px); border-color: var(--accent); background: var(--card-hover); }
+
+.lesson-card .icon { font-size: 34px; }
+.lesson-card h3 { margin: 8px 0 4px; font-size: 18px; }
+.lesson-card p { color: var(--text-dim); font-size: 13px; min-height: 44px; }
+
+.card-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+  font-size: 13px;
+}
+
+.card-xp { color: var(--gold); font-weight: 700; }
+.card-status { font-weight: 700; }
+.card-status.done { color: var(--green); }
+.card-status.doing { color: var(--accent2); }
+
+/* 未解锁：置灰带锁 */
+.lesson-card.locked {
+  opacity: 0.45;
+  filter: grayscale(0.8);
+  pointer-events: none;
+}
+.lesson-card.locked::after {
+  content: "🔒 完成上一课 60% 解锁";
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+/* ---------- 徽章墙 ---------- */
+.badge-wall { display: flex; flex-wrap: wrap; gap: 14px; }
+
+.badge {
+  width: 74px;
+  height: 74px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--card);
+  border: 2px solid var(--border);
+  border-radius: 14px;
+  font-size: 28px;
+  filter: grayscale(1);
+  opacity: 0.4;
+  transition: all 0.3s ease;
+}
+.badge small { font-size: 10px; color: var(--text-dim); margin-top: 2px; }
+
+.badge.earned {
+  filter: none;
+  opacity: 1;
+  border-color: var(--gold);
+  box-shadow: 0 0 14px rgba(251, 191, 36, 0.35);
+}
+
+/* ---------- 学习页布局 ---------- */
+.lesson-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+/* 知识卡片 */
+.section-card, .task-card {
+  background: var(--card);
+  border: 2px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+  margin-bottom: 18px;
+}
+
+.section-card h3, .task-card h3 { font-size: 17px; margin-bottom: 8px; color: var(--accent2); }
+.section-card p { font-size: 14px; color: var(--text); margin-bottom: 10px; }
+
+code {
+  font-family: var(--mono);
+  background: rgba(56, 189, 248, 0.12);
+  color: #a5e3ff;
+  padding: 1px 6px;
+  border-radius: 5px;
+  font-size: 0.92em;
+}
+
+pre {
+  font-family: var(--mono);
+  background: #0b0e1f;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 13.5px;
+  line-height: 1.6;
+  overflow-x: auto;
+  white-space: pre;
+  margin: 8px 0;
+}
+
+pre.output-block {
+  background: #101731;
+  border-left: 4px solid var(--green);
+  color: #b8f5d8;
+}
+pre.output-block::before {
+  content: "输出";
+  display: block;
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-bottom: 4px;
+  font-family: inherit;
+}
+
+/* ---------- 练习区 ---------- */
+.task-card.done { border-color: var(--green); }
+.task-card .task-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.task-check { font-size: 18px; visibility: hidden; }
+.task-card.done .task-check { visibility: visible; }
+
+.task-prompt { font-size: 14px; margin-bottom: 10px; }
+
+textarea.editor {
+  width: 100%;
+  min-height: 150px;
+  background: #0b0e1f;
+  color: #d6e2ff;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-family: var(--mono);
+  font-size: 13.5px;
+  line-height: 1.6;
+  resize: vertical;
+  tab-size: 4;
+}
+textarea.editor:focus { outline: none; border-color: var(--accent); }
+
+.btn-row { display: flex; gap: 10px; margin: 10px 0; }
+
+button.run-btn {
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 8px 22px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.1s ease, filter 0.15s ease;
+}
+button.run-btn:hover { filter: brightness(1.15); }
+button.run-btn:active { transform: scale(0.96); }
+button.run-btn:disabled { opacity: 0.5; cursor: wait; }
+
+.output-box {
+  font-family: var(--mono);
+  background: #0b0e1f;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 13px;
+  min-height: 44px;
+  white-space: pre-wrap;
+  word-break: break-all;
+  color: #d6e2ff;
+}
+.output-box:empty::before { content: "运行结果会显示在这里…"; color: var(--text-dim); }
+
+.judge { margin-top: 8px; font-weight: 700; font-size: 14px; }
+.judge.pass { color: var(--green); }
+.judge.fail { color: var(--red); }
+
+/* 通过动效 */
+@keyframes pop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.04); box-shadow: 0 0 24px rgba(52, 211, 153, 0.5); }
+  100% { transform: scale(1); }
+}
+.task-card.just-passed { animation: pop 0.6s ease; }
+
+@keyframes floatUp {
+  0% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-46px); }
+}
+.xp-float {
+  position: absolute;
+  right: 18px;
+  color: var(--gold);
+  font-weight: 800;
+  pointer-events: none;
+  animation: floatUp 1.2s ease forwards;
+}
+
+/* 引擎状态条 */
+.engine-status {
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-size: 13px;
+  margin-bottom: 18px;
+  border: 1px solid var(--border);
+  background: var(--bg2);
+  color: var(--text-dim);
+}
+.engine-status.loading { border-color: var(--accent2); color: var(--accent2); }
+.engine-status.ready { border-color: var(--green); color: var(--green); }
+.engine-status.fallback { border-color: var(--gold); color: var(--gold); }
+/* 降级时状态条里的「重试加载引擎」按钮 */
+.engine-status .retry-engine-btn { margin-left: 10px; padding: 4px 12px; font-size: 12px; }
+
+/* ---------- 逐级提示 ---------- */
+button.hint-btn {
+  background: transparent;
+  color: var(--gold);
+  border: 1px solid var(--gold);
+  border-radius: 10px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease, opacity 0.15s ease;
+}
+button.hint-btn:hover { background: rgba(251, 191, 36, 0.12); }
+button.hint-btn:disabled { opacity: 0.45; cursor: default; }
+
+.hint-item {
+  font-size: 13px;
+  background: rgba(251, 191, 36, 0.08);
+  border-left: 3px solid var(--gold);
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin: 8px 0;
+  color: var(--text);
+}
+
+/* ---------- 试炼题（无提示，考场感） ---------- */
+.task-card.trial {
+  border-color: #f97316;
+  background: linear-gradient(180deg, rgba(249, 115, 22, 0.08), transparent 40%), var(--card);
+}
+.task-card.trial.done { border-color: var(--green); }
+.task-card.trial h3 { color: #fdba74; }
+
+.trial-tag {
+  font-size: 11px;
+  color: #fdba74;
+  border: 1px solid #f97316;
+  border-radius: 6px;
+  padding: 1px 8px;
+  margin-left: 6px;
+  white-space: nowrap;
+}
+
+.trial-note {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-bottom: 10px;
+}
+
+/* ---------- 存档导出 / 导入 ---------- */
+.save-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.save-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  border-radius: 8px;
+  padding: 5px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+.save-btn:hover { border-color: var(--accent2); color: var(--accent2); }
+
+.save-note { font-size: 12px; color: var(--text-dim); }
+
+/* 底部飘出的提示条 */
+.save-toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--green);
+  color: #052e1b;
+  font-weight: 700;
+  font-size: 13px;
+  padding: 10px 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.5);
+  z-index: 99;
+}
+
+/* 简易弹窗 */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 7, 18, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  padding: 20px;
+}
+
+.modal {
+  background: var(--card);
+  border: 2px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+  width: 100%;
+  max-width: 520px;
+}
+
+.modal h3 { font-size: 16px; margin-bottom: 6px; color: var(--accent2); }
+.modal-desc { font-size: 13px; color: var(--text-dim); margin-bottom: 10px; }
+
+.modal textarea {
+  width: 100%;
+  min-height: 120px;
+  background: #0b0e1f;
+  color: #d6e2ff;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.6;
+  resize: vertical;
+}
+.modal textarea:focus { outline: none; border-color: var(--accent); }
+
+/* ---------- 动画课堂入口卡片 ---------- */
+.anim-entry {
+  display: block;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.25), rgba(56, 189, 248, 0.18)), var(--card);
+  border: 2px solid var(--accent);
+  border-radius: 14px;
+  padding: 16px 20px;
+  margin-bottom: 22px;
+  color: var(--text);
+  text-decoration: none;
+  font-size: 15px;
+  font-weight: 700;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.anim-entry:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 22px rgba(139, 92, 246, 0.35);
+}
+.anim-entry small { display: block; font-weight: 400; color: var(--text-dim); margin-top: 4px; }
+
+/* ---------- 今日任务 ---------- */
+.daily-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  align-items: start;
+}
+
+.daily-card {
+  background: var(--card);
+  border: 2px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+}
+
+.daily-card h3 { font-size: 17px; margin-bottom: 8px; color: var(--accent2); }
+.daily-goal { font-size: 14px; margin-bottom: 8px; }
+.daily-note { font-size: 13px; color: var(--gold); margin-bottom: 6px; }
+.daily-warn { font-size: 12px; color: var(--red); margin-bottom: 10px; }
+
+.daily-points { font-size: 13px; margin: 6px 0 10px; padding-left: 20px; }
+.daily-points li { margin-bottom: 4px; }
+
+.daily-code { margin-top: 10px; }
+
+.daily-challenge { font-size: 13px; color: var(--green); margin-top: 12px; }
+
+.daily-sub { font-size: 13px; color: var(--accent2); margin-top: 12px; }
+
+.streak-badge {
+  font-size: 12px;
+  color: var(--gold);
+  border: 1px solid var(--gold);
+  border-radius: 8px;
+  padding: 2px 10px;
+  vertical-align: middle;
+  margin-left: 8px;
+  text-shadow: none;
+}
+
+/* ---------- 响应式：窄屏上下堆叠 ---------- */
+@media (max-width: 860px) {
+  .lesson-layout { grid-template-columns: 1fr; }
+  .daily-grid { grid-template-columns: 1fr; }
+  .topbar { padding: 12px 16px; }
+  .logo { font-size: 17px; }
+  .xp-area { width: 100%; }
+}

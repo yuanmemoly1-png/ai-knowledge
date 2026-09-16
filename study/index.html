@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>学习站 · ai知识库阅读器</title>
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="logo" href="index.html">📖 学习站 <span>· 知识库阅读</span></a>
+    <nav class="portal">
+      <a href="../feynman/index.html" target="_blank">🎓 学检场</a>
+      <a href="../practice/index.html" target="_blank">🏝️ 冒险岛</a>
+      <button class="rand-btn" id="rand-btn" title="随机翻一篇">🎲 随便翻</button>
+    </nav>
+  </header>
+
+  <div class="layout">
+    <!-- 侧栏：搜索 + 目录 + 最近在读 -->
+    <aside class="sidebar">
+      <input type="text" id="search" class="search" placeholder="🔍 搜标题 / 正文 / 路径">
+      <div class="dir-chips" id="dir-chips"></div>
+      <div class="recent" id="recent-box" style="display:none">
+        <div class="side-title">🕘 最近在读</div>
+        <div id="recent-list"></div>
+      </div>
+      <div class="side-title" id="list-title">📚 全部笔记 <span id="list-count"></span></div>
+      <div class="note-list" id="note-list"></div>
+    </aside>
+
+    <!-- 主区 -->
+    <main class="reader" id="reader">
+      <div class="welcome" id="welcome">
+        <h1>👋 欢迎来到学习站</h1>
+        <p>左边挑一篇开始读。<b>紫色的 [[双链]]</b>可以直接点，像 Obsidian 一样跳转。</p>
+        <p>读完觉得消化了？点右上角 <b>🎓 去检验这篇</b>，直接进费曼学检场盲讲。</p>
+        <div class="loop-tip">闭环：📖 这里学 → 🏝️ 冒险岛练 → 🎓 学检场讲</div>
+      </div>
+    </main>
+  </div>
+
+  <div class="toast" id="toast"></div>
+  <script src="../feynman/data/notes.js"></script>
+  <script src="assets/app.js"></script>
+</body>
+</html>

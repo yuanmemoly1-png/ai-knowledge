@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>学习页 · AI 冒险岛 · 练习场</title>
+  <link rel="stylesheet" href="assets/style.css">
+  <!-- Pyodide 引擎由 assets/app.js 动态加载：多 CDN 线路自动切换，失败自动降级为对照模式 -->
+</head>
+<body>
+  <!-- 顶栏：返回 + 课名 + XP 进度条 + 等级 -->
+  <header class="topbar">
+    <a class="logo" href="index.html">🏝️ AI 冒险岛 <span>· 练习场</span></a>
+    <div class="xp-area">
+      <span class="level-badge" id="level-badge">Lv.1</span>
+      <div class="xp-bar"><div class="xp-fill" id="xp-fill"></div></div>
+      <span class="xp-text" id="xp-text">0 XP</span>
+    </div>
+  </header>
+
+  <main class="page">
+    <a class="back-link" href="index.html">← 返回冒险地图</a>
+    <h2 class="section-title" id="lesson-title">加载中…</h2>
+
+    <!-- 引擎状态条：加载中 / 就绪 / 降级提示 -->
+    <div class="engine-status" id="engine-status">⏳ 正在加载 Python 引擎…</div>
+
+    <div class="lesson-layout">
+      <!-- 左：课程内容区（知识卡片） -->
+      <div id="content-col"></div>
+      <!-- 右：练习区（任务卡） -->
+      <div id="practice-col"></div>
+    </div>
+  </main>
+
+  <script src="data/lessons.js"></script>
+  <script src="assets/app.js"></script>
+</body>
+</html>

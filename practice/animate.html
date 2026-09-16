@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>动画课堂 · AI 冒险岛 · 练习场</title>
+  <link rel="stylesheet" href="assets/style.css">
+  <link rel="stylesheet" href="assets/anim.css">
+</head>
+<body>
+  <!-- 顶栏 -->
+  <header class="topbar">
+    <a class="logo" href="index.html">🏝️ AI 冒险岛 <span>· 练习场</span></a>
+    <a class="save-btn" href="index.html">← 返回冒险地图</a>
+  </header>
+
+  <main class="page">
+    <h2 class="section-title">🎬 动画课堂</h2>
+    <p style="color:var(--text-dim);font-size:13px;margin-bottom:16px">
+      看不懂代码？来看会动的讲解。点「下一步」动画推进一步，每步配一句大白话。
+    </p>
+
+    <div class="anim-layout">
+      <!-- 左：概念列表 -->
+      <aside class="scene-list" id="scene-list"></aside>
+
+      <!-- 右：动画舞台 + 字幕 + 控制条 -->
+      <section>
+        <h3 id="scene-title"></h3>
+        <div class="stage" id="stage"></div>
+        <div class="caption-bar" id="caption"></div>
+        <div class="controls">
+          <button id="btn-prev">⏮ 上一步</button>
+          <span id="step-indicator">1 / 1</span>
+          <button id="btn-next">下一步 ⏭</button>
+          <button id="btn-auto">▶ 自动播放</button>
+          <button id="btn-reset">🔄 重置</button>
+        </div>
+        <p class="anim-hint">小技巧：也可以用键盘 ← → 切换步骤</p>
+      </section>
+    </div>
+  </main>
+
+  <script src="data/scenes.js"></script>
+  <script src="assets/anim.js"></script>
+</body>
+</html>

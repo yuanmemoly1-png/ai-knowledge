@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>复习中心 · AI 冒险岛</title>
+  <link rel="stylesheet" href="assets/style.css">
+  <link rel="stylesheet" href="assets/review.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="logo" href="index.html">🏝️ AI 冒险岛 <span>· 复习中心</span></a>
+    <a class="back-link" href="index.html">← 返回练习场</a>
+  </header>
+
+  <main class="page">
+    <!-- 模式切换 -->
+    <nav class="mode-tabs">
+      <button class="mode-tab active" data-mode="topics">📚 知识点练习</button>
+      <button class="mode-tab" data-mode="career">💼 职业面试题</button>
+      <button class="mode-tab" data-mode="wrong">📝 我的错题本 <span class="wrong-count" id="wrong-count"></span></button>
+    </nav>
+
+    <!-- 📚 知识点练习：主题卡片 → 逐题作答 -->
+    <section id="panel-topics">
+      <div class="topic-grid" id="topic-grid"></div>
+      <div id="quiz-runner" style="display:none"></div>
+    </section>
+
+    <!-- 💼 职业面试题：职业选择器 → 逐题看思路 -->
+    <section id="panel-career" style="display:none">
+      <div class="career-bar" id="career-bar"></div>
+      <div id="career-list"></div>
+    </section>
+
+    <!-- 📝 错题本：自动收集答错的题，连续答对 2 次移出 -->
+    <section id="panel-wrong" style="display:none">
+      <p class="panel-note">答错的题会自动收进这里；每题连续答对 2 次后自动移出。进度存在本浏览器（localStorage）。</p>
+      <div id="wrong-list"></div>
+    </section>
+  </main>
+
+  <script src="data/quiz.js"></script>
+  <script src="assets/review.js"></script>
+</body>
+</html>

@@ -1,0 +1,642 @@
+{
+  "lessons": [
+    {
+      "id": "py-1",
+      "title": "变量与 print",
+      "taskCount": 8,
+      "trialCount": 3
+    },
+    {
+      "id": "py-2",
+      "title": "字符串",
+      "taskCount": 8,
+      "trialCount": 3
+    },
+    {
+      "id": "py-3",
+      "title": "列表与字典",
+      "taskCount": 8,
+      "trialCount": 3
+    },
+    {
+      "id": "py-4",
+      "title": "条件与循环",
+      "taskCount": 9,
+      "trialCount": 3
+    },
+    {
+      "id": "py-5",
+      "title": "函数",
+      "taskCount": 8,
+      "trialCount": 3
+    },
+    {
+      "id": "py-6",
+      "title": "综合实战",
+      "taskCount": 9,
+      "trialCount": 3
+    }
+  ],
+  "tasks": [
+    {
+      "id": "py-1-t1",
+      "lesson": "py-1",
+      "trial": false,
+      "check": {
+        "type": "exact",
+        "expected": "小明"
+      },
+      "hintsCount": 3,
+      "hasSolution": false,
+      "starterHasMarker": true
+    },
+    {
+      "id": "py-1-t2",
+      "lesson": "py-1",
+      "trial": false,
+      "check": {
+        "type": "exact",
+        "expected": "我叫 小明 ，今年 18 岁"
+      },
+      "hintsCount": 3,
+      "hasSolution": false,
+      "starterHasMarker": true
+    },
+    {
+      "id": "py-1-t3",
+      "lesson": "py-1",
+      "trial": false,
+      "check": {
+        "type": "exact",
+        "expected": "<class 'int'>\n<class 'str'>\n<class 'float'>"
+      },
+      "hintsCount": 3,
+      "hasSolution": false,
+      "starterHasMarker": true
+    },
+    {
+      "id": "py-1-t4",
+      "lesson": "py-1",
+      "trial": false,
+      "check": {
+        "type": "exact",
+        "expected": "我住在 杭州 ，喜欢 画画"
+      },
+      "hintsCount": 3,
+      "hasSolution": false,
+      "starterHasMarker": true
+    },
+    {
+      "id": "py-1-t5",
+      "lesson": "py-1",
+      "trial": false,
+      "check": {
+        "type": "exact",
+        "expected": "总价： 18"
+      },
+      "hintsCount": 3,
+      "hasSolution": false,
+      "starterHasMarker": true
+    },
+    {
+      "id": "py-1-tr1",
+      "lesson": "py-1",
+      "trial": true,
+      "check": {
+        "type": "exact",
+        "expected": "华氏度： 77.0"
+      },
+      "hintsCount": 0,
+      "hasSolution": false,
+      "starterHasMarker": true
+    },
+    {
+      "id": "py-1-tr2",
+      "lesson": "py-1",
+      "trial": true,
+      "check": {
+        "type": "exact",
+        "expected": "蓝 红"
+      },
+      "hintsCount": 0,
+      "hasSolution": false,
+      "starterHasMarker": true
+    },
+    {
+      "id": "py-1-tr3",
+      "lesson": "py-1",
+      "trial": true,
+      "check": {
+        "type": "exact",
+        "expected": "面积： 40\n周长： 26"
+      },
+      "hintsCount": 0,
+      "hasSolution": false,
+      "starterHasMarker": true
+    },
+    {
+      "id": "py-2-t1",
+      "lesson": "py-2",
+      "trial": false,
+      "check": {
+        "type": "exact",
+        "expected": "亲爱的小明，祝你18岁生日快乐！"
+      },
+      "hintsCount": 3,
+      "hasSolution": false,
+      "starterHasMarker": true
+    },
+    {
+      "id": "py-2-t2",
+      "lesson": "py-2",
+      "trial": false,
+      "check": {
+        "type": "exact",
+        "expected": "['2026', '08', '07']"
+      },
+      "hintsCount": 3,
+      "hasSolution": false,
+      "starterHasMarker": true
+    },
+    {
+      "id": "py-2-t3",
+      "lesson": "py-2",
+      "trial": false,
+      "check": {
+        "type": "exact",
+        "expected": "学习好简单"
+      },
+      "hintsCount": 3,
+      "hasSolution": false,
+      "starterHasMarker": true
+    },
+    {
+      "id": "py-2-t4",
+      "lesson": "py-2",
+      "trial": false,
+      "check": {
+        "type": "exact",
+        "expected": "总价：7.0"
+      },
+      "hintsCount": 3,
+      "hasSolution": false,
+      "starterHasMarker": true
+    },
+    {
+      "id": "py-2-t5",
+      "lesson": "py-2",
+      "trial": false,
+      "check": {
+        "type": "exact",
+        "expected": "你好，xiaoming"
+      },
+      "hintsCount": 3,
+      "hasSolution": false,
+      "starterHasMarker": true
+    },
+    {
+      "id": "py-2-tr1",
+      "lesson": "py-2",
+      "trial": true,
+      "check": {
+        "type": "exact",
+        "expected": "AI"
+      },
+      "hintsCount": 0,
+      "hasSolution": false,
+      "starterHasMarker": true
+    },
+    {
+      "id": "py-2-tr2",
+      "lesson": "py-2",
+      "trial": true,
+      "check": {
+        "type": "exact",
+        "expected": "study good good"
+      },
+      "hintsCount": 0,
+      "hasSolution": false,
+      "starterHasMarker": true
+    },
+    {
+      "id": "py-2-tr3",
+      "lesson": "py-2",
+      "trial": true,
+      "check": {
+        "type": "exact",
+        "expected": "翻倍后：199.0"
+      },
+      "hintsCount": 0,
+      "hasSolution": false,
+      "starterHasMarker": true
+    },
+    {
+      "id": "py-3-t1",
+      "lesson": "py-3",
+      "trial": false,
+      "check": {
+        "type": "exact",
+        "expected": "苹果"
+      },
+      "hintsCount": 3,
+      "hasSolution": false,
+      "starterHasMarker": true
+    },
+    {
+      "id": "py-3-t2",
+      "lesson": "py-3",
+      "trial": false,
+      "check": {
+        "type": "exact",
+        "expected": "4"
+      },
+      "hintsCount": 3,
+      "hasSolution": false,
+      "starterHasMarker": true
+    },
+    {
+      "id": "py-3-t3",
+      "lesson": "py-3",
+      "trial": false,
+      "check": {
+        "type": "exact",
+        "expected": "90"
+      },
+      "hintsCount": 3,
+      "hasSolution": false,
+      "starterHasMarker": true
+    },
+    {
+      "id": "py-3-t4",
+      "lesson": "py-3",
+      "trial": false,
+      "check": {
+        "type": "exact",
+        "expected": "橘子"
+      },
+      "hintsCount": 3,
+      "hasSolution": false,
+      "starterHasMarker": true
+    },
+    {
+      "id": "py-3-t5",
+      "lesson": "py-3",
+      "trial": false,
+      "check": {
+        "type": "exact",
+        "expected": "{'语文': 90, '数学': 90}"
+      },
+      "hintsCount": 3,
+      "hasSolution": false,
+      "starterHasMarker": true
+    },
+    {
+      "id": "py-3-tr1",
+      "lesson": "py-3",
+      "trial": true,
+      "check": {
+        "type": "exact",
+        "expected": "{'语文': 90, '数学': 85}\n85"
+      },
+      "hintsCount": 0,
+      "hasSolution": false,
+      "starterHasMarker": true
+    },
+    {
+      "id": "py-3-tr2",
+      "lesson": "py-3",
+      "trial": true,
+      "check": {
+        "type": "exact",
+        "expected": "小红 85"
+      },
+      "hintsCount": 0,
+      "hasSolution": false,
+      "starterHasMarker": true
+    },
+    {
+      "id": "py-3-tr3",
+      "lesson": "py-3",
+      "trial": true,
+      "check": {
+        "type": "exact",
+        "expected": "9 1 4"
+      },
+      "hintsCount": 0,
+      "hasSolution": false,
+      "starterHasMarker": true
+    },
+    {
+      "id": "py-4-t1",
+      "lesson": "py-4",
+      "trial": false,
+      "check": {
+        "type": "exact",
+        "expected": "及格"
+      },
+      "hintsCount": 3,
+      "hasSolution": false,
+      "starterHasMarker": true
+    },
+    {
+      "id": "py-4-t2",
+      "lesson": "py-4",
+      "trial": false,
+      "check": {
+        "type": "exact",
+        "expected": "苹果\n香蕉\n橘子"
+      },
+      "hintsCount": 3,
+      "hasSolution": false,
+      "starterHasMarker": true
+    },
+    {
+      "id": "py-4-t3",
+      "lesson": "py-4",
+      "trial": false,
+      "check": {
+        "type": "exact",
+        "expected": "90\n78"
+      },
+      "hintsCount": 3,
+      "hasSolution": false,
+      "starterHasMarker": true
+    },
+    {
+      "id": "py-4-t4",
+      "lesson": "py-4",
+      "trial": false,
+      "check": {
+        "type": "exact",
+        "expected": "60"
+      },
+      "hintsCount": 3,
+      "hasSolution": false,
+      "starterHasMarker": true
+    },
+    {
+      "id": "py-4-t5",
+      "lesson": "py-4",
+      "trial": false,
+      "check": {
+        "type": "exact",
+        "expected": "3"
+      },
+      "hintsCount": 3,
+      "hasSolution": false,
+      "starterHasMarker": true
+    },
+    {
+      "id": "py-4-t6",
+      "lesson": "py-4",
+      "trial": false,
+      "check": {
+        "type": "exact",
+        "expected": "1 奇数\n2 偶数\n3 奇数\n4 偶数\n5 奇数"
+      },
+      "hintsCount": 3,
+      "hasSolution": false,
+      "starterHasMarker": true
+    },
+    {
+      "id": "py-4-tr1",
+      "lesson": "py-4",
+      "trial": true,
+      "check": {
+        "type": "exact",
+        "expected": "1x1=1\n1x2=2\n2x2=4\n1x3=3\n2x3=6\n3x3=9"
+      },
+      "hintsCount": 0,
+      "hasSolution": false,
+      "starterHasMarker": true
+    },
+    {
+      "id": "py-4-tr2",
+      "lesson": "py-4",
+      "trial": true,
+      "check": {
+        "type": "exact",
+        "expected": "1\n2\nFizz\n4\nBuzz\nFizz\n7\n8\nFizz\nBuzz"
+      },
+      "hintsCount": 0,
+      "hasSolution": false,
+      "starterHasMarker": true
+    },
+    {
+      "id": "py-4-tr3",
+      "lesson": "py-4",
+      "trial": true,
+      "check": {
+        "type": "exact",
+        "expected": "3 小了\n9 大了\n7 猜对了"
+      },
+      "hintsCount": 0,
+      "hasSolution": false,
+      "starterHasMarker": true
+    },
+    {
+      "id": "py-5-t1",
+      "lesson": "py-5",
+      "trial": false,
+      "check": {
+        "type": "exact",
+        "expected": "8"
+      },
+      "hintsCount": 3,
+      "hasSolution": false,
+      "starterHasMarker": true
+    },
+    {
+      "id": "py-5-t2",
+      "lesson": "py-5",
+      "trial": false,
+      "check": {
+        "type": "exact",
+        "expected": "及格"
+      },
+      "hintsCount": 3,
+      "hasSolution": false,
+      "starterHasMarker": true
+    },
+    {
+      "id": "py-5-t3",
+      "lesson": "py-5",
+      "trial": false,
+      "check": {
+        "type": "exact",
+        "expected": "3"
+      },
+      "hintsCount": 3,
+      "hasSolution": false,
+      "starterHasMarker": true
+    },
+    {
+      "id": "py-5-t4",
+      "lesson": "py-5",
+      "trial": false,
+      "check": {
+        "type": "exact",
+        "expected": "你好，小明！"
+      },
+      "hintsCount": 3,
+      "hasSolution": false,
+      "starterHasMarker": true
+    },
+    {
+      "id": "py-5-t5",
+      "lesson": "py-5",
+      "trial": false,
+      "check": {
+        "type": "exact",
+        "expected": "230"
+      },
+      "hintsCount": 3,
+      "hasSolution": false,
+      "starterHasMarker": true
+    },
+    {
+      "id": "py-5-tr1",
+      "lesson": "py-5",
+      "trial": true,
+      "check": {
+        "type": "exact",
+        "expected": "强\n中\n弱"
+      },
+      "hintsCount": 0,
+      "hasSolution": false,
+      "starterHasMarker": true
+    },
+    {
+      "id": "py-5-tr2",
+      "lesson": "py-5",
+      "trial": true,
+      "check": {
+        "type": "exact",
+        "expected": "90.0"
+      },
+      "hintsCount": 0,
+      "hasSolution": false,
+      "starterHasMarker": true
+    },
+    {
+      "id": "py-5-tr3",
+      "lesson": "py-5",
+      "trial": true,
+      "check": {
+        "type": "exact",
+        "expected": "130\n80"
+      },
+      "hintsCount": 0,
+      "hasSolution": false,
+      "starterHasMarker": true
+    },
+    {
+      "id": "py-6-t1",
+      "lesson": "py-6",
+      "trial": false,
+      "check": {
+        "type": "exact",
+        "expected": "苹果 出现了 3 次\n香蕉 出现了 2 次\n橘子 出现了 1 次"
+      },
+      "hintsCount": 3,
+      "hasSolution": false,
+      "starterHasMarker": true
+    },
+    {
+      "id": "py-6-t2",
+      "lesson": "py-6",
+      "trial": false,
+      "check": {
+        "type": "exact",
+        "expected": "{'奶茶': 30, '午餐': 30, '电影票': 40}\n总花费： 100"
+      },
+      "hintsCount": 3,
+      "hasSolution": false,
+      "starterHasMarker": true
+    },
+    {
+      "id": "py-6-t3",
+      "lesson": "py-6",
+      "trial": false,
+      "check": {
+        "type": "exact",
+        "expected": "b 出现了 1 次\na 出现了 3 次\nn 出现了 2 次"
+      },
+      "hintsCount": 3,
+      "hasSolution": false,
+      "starterHasMarker": true
+    },
+    {
+      "id": "py-6-t4",
+      "lesson": "py-6",
+      "trial": false,
+      "check": {
+        "type": "exact",
+        "expected": "总价： 16"
+      },
+      "hintsCount": 3,
+      "hasSolution": false,
+      "starterHasMarker": true
+    },
+    {
+      "id": "py-6-t5",
+      "lesson": "py-6",
+      "trial": false,
+      "check": {
+        "type": "exact",
+        "expected": "最高分： 英语 92"
+      },
+      "hintsCount": 3,
+      "hasSolution": false,
+      "starterHasMarker": true
+    },
+    {
+      "id": "py-6-t6",
+      "lesson": "py-6",
+      "trial": false,
+      "check": {
+        "type": "exact",
+        "expected": "{'猫': 2, '狗': 1}"
+      },
+      "hintsCount": 3,
+      "hasSolution": false,
+      "starterHasMarker": true
+    },
+    {
+      "id": "py-6-tr1",
+      "lesson": "py-6",
+      "trial": true,
+      "check": {
+        "type": "exact",
+        "expected": "小明 92 优秀\n小红 58 不及格\n小刚 76 及格\n平均分： 75"
+      },
+      "hintsCount": 0,
+      "hasSolution": false,
+      "starterHasMarker": true
+    },
+    {
+      "id": "py-6-tr2",
+      "lesson": "py-6",
+      "trial": true,
+      "check": {
+        "type": "exact",
+        "expected": "「苹果」出现了 2 条消息"
+      },
+      "hintsCount": 0,
+      "hasSolution": false,
+      "starterHasMarker": true
+    },
+    {
+      "id": "py-6-tr3",
+      "lesson": "py-6",
+      "trial": true,
+      "check": {
+        "type": "exact",
+        "expected": "苹果 库存 10\n香蕉 缺货\n橘子 库存 5"
+      },
+      "hintsCount": 0,
+      "hasSolution": false,
+      "starterHasMarker": true
+    }
+  ]
+}

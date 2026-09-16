@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>费曼学检场 · 讲不出来 = 没学会</title>
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="logo" href="index.html">🎓 费曼学检场 <span>· 讲给小白听</span></a>
+    <div class="xp-area">
+      <span class="level-badge" id="level-badge">Lv.1</span>
+      <div class="xp-bar"><div class="xp-fill" id="xp-fill"></div></div>
+      <span class="xp-text" id="xp-text">0 XP</span>
+      <span class="streak-badge" id="streak-badge" title="连续打卡天数">🔥 0</span>
+    </div>
+  </header>
+
+  <main class="page">
+    <div class="save-bar">
+      <button class="save-btn" id="settings-btn">⚙️ AI 设置</button>
+      <button class="save-btn" id="export-save-btn">📤 导出存档</button>
+      <button class="save-btn" id="import-save-btn">📥 导入存档</button>
+      <span class="save-note" id="index-note"></span>
+    </div>
+
+    <!-- 首页：今日待办 + 发起检验 -->
+    <section id="home-view">
+      <h2 class="section-title">📅 今日该做的（零决策，照做就行）</h2>
+      <div id="today-box"></div>
+
+      <h2 class="section-title">🚀 发起一次检验（2 分钟也算打卡）</h2>
+      <div class="launch-grid">
+        <button class="launch-card" id="launch-pick">
+          <b>📚 从库里选笔记</b>
+          <small>166 篇任选 · 索引每日自动刷新</small>
+        </button>
+        <button class="launch-card" id="launch-paste">
+          <b>📋 粘贴 / 拖入任意内容</b>
+          <small>刚学的视频/文章/代码，粘进来就检</small>
+        </button>
+      </div>
+
+      <h2 class="section-title">📈 我的战绩</h2>
+      <div class="stats-grid" id="stats-grid"></div>
+
+      <h2 class="section-title">🏅 徽章墙</h2>
+      <div class="badge-wall" id="badge-wall"></div>
+    </section>
+
+    <!-- 检验流水线 -->
+    <section id="flow-view" style="display:none">
+      <div class="flow-header">
+        <button class="hint-btn" id="back-btn">← 退出（进度已自动保存）</button>
+        <div class="flow-steps" id="flow-steps">
+          <span class="fstep active" data-step="1">💬 苏格拉底对话</span>
+          <span class="fstep" data-step="4">📝 出关考试</span>
+        </div>
+        <span class="note-tag" id="current-note-tag"></span>
+      </div>
+
+      <!-- Step 1 对话巩固（新形态） -->
+      <div class="fpanel" id="step1">
+        <div class="steptip">
+          <b>像聊天一样学。</b>AI 家教会基于这篇笔记一步步问你、听你讲、追问我、纠正你。
+          讲不出来它会给提示，跑偏了它会拉回来——聊完这场，知识就是你的了。
+        </div>
+        <div class="chat-box" id="chat-box"></div>
+        <div class="chat-input-row">
+          <textarea id="chat-input" rows="2" placeholder="用你自己的话回答家教的问题……（Enter 发送，Shift+Enter 换行）"></textarea>
+          <button class="run-btn" id="chat-send">发送</button>
+        </div>
+        <div class="chat-quick" id="chat-quick">
+          <button class="qk-btn" data-q="我还是不太明白，能给我一点提示吗">💡 给点提示</button>
+          <button class="qk-btn" data-q="我不知道这个，你直接教我吧">🙇 不会，教我</button>
+          <button class="qk-btn" data-q="我懂了，下一个问题吧">⏭️ 换个问题</button>
+        </div>
+        <div class="btn-row">
+          <button class="run-btn" id="step1-next">聊完了，去考试 →</button>
+        </div>
+        <details class="source-fold">
+          <summary>📕 想偷看原文？（家教装作没看见）</summary>
+          <pre id="source-pre"></pre>
+        </details>
+      </div>
+
+      <!-- 旧 Step1/2/3 区块已删除，合并为对话模式 -->
+
+      <!-- Step 4 出关 -->
+      <div class="fpanel" id="step4" style="display:none">
+        <div class="steptip"><b>最后一步：出关考试。</b>基于这篇笔记出卷：选择题 + 判断题 + 简答题。答完自动判分——分数决定几天后重逢。</div>
+        <div id="exam-area"><div class="ai-loading">📝 出卷中……</div></div>
+        <div id="exam-result" style="display:none"></div>
+        <div class="btn-row" id="exam-btn-row">
+          <button class="run-btn" id="submit-exam" disabled>交卷判分 →</button>
+          <button class="hint-btn" id="regen-exam" style="display:none">🔄 换一套题</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 选笔记弹窗 -->
+  <div class="modal-overlay" id="pick-modal" style="display:none">
+    <div class="modal wide">
+      <h3>📚 选一篇笔记来检验</h3>
+      <input type="text" id="pick-search" class="search-input" placeholder="搜标题或路径，如：RAG / Agent自进化 / 面试">
+      <div class="dir-filter" id="dir-filter"></div>
+      <div class="note-list" id="note-list"></div>
+      <div class="btn-row"><button class="hint-btn" id="pick-cancel">取消</button></div>
+    </div>
+  </div>
+
+  <!-- 粘贴弹窗 -->
+  <div class="modal-overlay" id="paste-modal" style="display:none">
+    <div class="modal">
+      <h3>📋 粘贴 / 拖入要检验的内容</h3>
+      <p class="modal-desc">把刚学的文章、视频笔记、代码讲解粘进来（或把 .md / .txt 文件拖进下面的框）</p>
+      <input type="text" id="paste-title" placeholder="给这次检验起个名字（如：今天看的 RAG 视频）">
+      <textarea class="big-input" id="paste-content" placeholder="把内容粘到这里……" style="min-height:180px"></textarea>
+      <div class="btn-row">
+        <button class="run-btn" id="paste-ok">开始检验</button>
+        <button class="hint-btn" id="paste-cancel">取消</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 设置弹窗 -->
+  <div class="modal-overlay" id="settings-modal" style="display:none">
+    <div class="modal">
+      <h3>⚙️ AI 设置（可选）</h3>
+      <p class="modal-desc">填 DeepSeek API Key 后，AI 会扮演"小白"追问你、帮你找差距、出检验题。<br>不填也完全能用（结构化自检模式）。Key 只存在你这台电脑的浏览器里。</p>
+      <input type="password" id="api-key" placeholder="DeepSeek API Key（sk-开头）">
+      <div class="judge" id="settings-msg"></div>
+      <div class="btn-row">
+        <button class="run-btn" id="settings-ok">保存</button>
+        <button class="hint-btn" id="settings-test">测试连接</button>
+        <button class="hint-btn" id="settings-clear">清除 Key</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 存档弹窗 -->
+  <div class="modal-overlay" id="save-modal" style="display:none">
+    <div class="modal">
+      <h3 id="save-modal-title">导出存档</h3>
+      <p class="modal-desc" id="save-modal-desc"></p>
+      <textarea id="save-modal-text" spellcheck="false"></textarea>
+      <div class="judge" id="save-modal-msg"></div>
+      <div class="btn-row">
+        <button class="run-btn" id="save-modal-ok">确认</button>
+        <button class="hint-btn" id="save-modal-cancel">取消</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="data/notes.js"></script>
+  <script src="assets/app.js"></script>
+</body>
+</html>

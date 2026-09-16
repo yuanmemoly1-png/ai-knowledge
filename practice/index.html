@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI 冒险岛 · 练习场</title>
+  <link rel="stylesheet" href="assets/style.css">
+  <!-- Pyodide 引擎由 assets/app.js 动态加载：多 CDN 线路自动切换，失败降级为手动对照打卡 -->
+</head>
+<body>
+  <!-- 顶栏：logo + XP 进度条 + 等级 -->
+  <header class="topbar">
+    <a class="logo" href="index.html">🏝️ AI 冒险岛 <span>· 练习场</span></a>
+    <div class="xp-area">
+      <span class="level-badge" id="level-badge">Lv.1</span>
+      <div class="xp-bar"><div class="xp-fill" id="xp-fill"></div></div>
+      <span class="xp-text" id="xp-text">0 XP</span>
+    </div>
+  </header>
+
+  <main class="page">
+    <!-- 存档栏：localStorage 按 origin 隔离，换打开方式会丢进度，提供导出/导入备份 -->
+    <div class="save-bar">
+      <button class="save-btn" id="export-save-btn">📤 导出存档</button>
+      <button class="save-btn" id="import-save-btn">📥 导入存档</button>
+      <span class="save-note">进度存在本浏览器里；换电脑/换打开方式前，先导出存档备份</span>
+    </div>
+
+    <h2 class="section-title">🗺️ 冒险地图 · Python 基础篇</h2>
+    <!-- 今日任务：默写 + 小项目，按日期静态轮换（无需后端） -->
+    <div id="daily-section"></div>
+
+    <a class="anim-entry" href="animate.html">
+      🎬 动画课堂 —— 看不懂代码？来看会动的讲解 →
+      <small>变量、f-string、列表、字典、for、if、函数、Agent 传纸条循环，8 个可点击的分步动画课件</small>
+    </a>
+
+    <a class="anim-entry" href="review.html">
+      🧠 复习中心 —— 学过的 AI 知识别让它溜走 →
+      <small>12 个知识点配套练习（提示词/RAG/幻觉/微调/Agent/MCP…）、5 大职业面试题+思路讲解、自动收集的错题本</small>
+    </a>
+
+    <div class="lesson-grid" id="lesson-grid"></div>
+
+    <h2 class="section-title">🏅 徽章墙</h2>
+    <div class="badge-wall" id="badge-wall"></div>
+  </main>
+
+  <!-- 存档弹窗：导出降级（手动复制）和导入共用 -->
+  <div class="modal-overlay" id="save-modal" style="display:none">
+    <div class="modal">
+      <h3 id="save-modal-title">导入存档</h3>
+      <p class="modal-desc" id="save-modal-desc"></p>
+      <textarea id="save-modal-text" spellcheck="false"></textarea>
+      <div class="judge" id="save-modal-msg"></div>
+      <div class="btn-row">
+        <button class="run-btn" id="save-modal-ok">确认导入</button>
+        <button class="hint-btn" id="save-modal-cancel">取消</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="data/daily.js"></script>
+  <script src="data/lessons.js"></script>
+  <script src="assets/app.js"></script>
+</body>
+</html>
