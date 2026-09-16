@@ -1,30 +1,32 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#0e1014">
-<meta name="description" content="AI 面试深度学习站：知识树深读 + 题库追问链 + 访谈证据锚定">
+<meta name="theme-color" content="#07080c">
+<meta name="description" content="AI 面试深度学习站：知识树深读 + 869 题题库 + YouTube 一线访谈">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="AI面试深度站">
 <title>AI 面试深度站</title>
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext y='26' font-size='26'%3E%F0%9F%8E%A4%3C/text%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%236d8bff'/%3E%3Ctext x='16' y='23' font-size='18' text-anchor='middle'%3E%E2%9C%A6%3C/text%3E%3C/svg%3E">
 <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
 
 <header class="topbar">
-  <a class="brand" href="#/today">🎤 AI 面试深度站</a>
+  <a class="brand" href="#/today"><span class="mark">✦</span>AI 面试深度站</a>
   <span class="spacer"></span>
-  <span class="stat" id="top-streak">🔥 <b>0</b> 天</span>
+  <span class="pill" id="top-streak">🔥 <b>0</b> 天</span>
+  <button class="icon-btn" id="btn-theme" title="切换主题" aria-label="切换主题">☀️</button>
 </header>
 
 <main class="page">
   <section class="view" id="view-today"></section>
   <section class="view" id="view-tree"></section>
   <section class="view" id="view-bank"></section>
+  <section class="view" id="view-iv"></section>
   <section class="view" id="view-notes"></section>
   <section class="view" id="view-me"></section>
 </main>
@@ -32,12 +34,13 @@
 <nav class="tabbar" id="tabbar"></nav>
 <div class="toast" id="toast"></div>
 
-<!-- 数据层：先索引，再知识树 / 金句 / 题库；正文按模块按需加载 -->
+<!-- 数据层：索引 + 手写内容（知识树 / 金句 / 精讲题 / 媒体题 / 访谈）；笔记正文按模块按需加载 -->
 <script src="data/index.js"></script>
 <script src="data/tree.js"></script>
 <script src="data/quotes.js"></script>
 <script src="data/questions.js"></script>
 <script src="data/media-bank.js"></script>
+<script src="data/interviews.js"></script>
 <script src="assets/md.js"></script>
 <script src="assets/app.js"></script>
 </body>

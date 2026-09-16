@@ -28,12 +28,19 @@
 
 ---
 
+## 界面
+
+深色「深空学习舱」风格，六个标签：**今日 / 知识 / 题库 / 访谈 / 笔记 / 我的**。支持浅色主题（右上角 ☀️ 切换）、PWA 离线、添加到主屏幕。
+
+---
+
 ## 内容规模
 
 | 内容 | 数量 | 来源 |
 |---|---|---|
 | 深度精讲题库 | **42 题** | 手写：每题含追问链 + 分层答题框架 + 取舍 + 雷区 + 访谈证据 |
 | 媒体题库 | **827 题** | 从牛客 / 掘金 / CSDN / 腾讯云社区 / Exponent / iGotAnOffer / GitHub 公开面经收集，全部带来源链接 |
+| 访谈库 | **26 场** | YouTube 优质访谈（S 级 9 / A 级 11 / B 级 6），17 场已加工成可深读笔记，含看点、金句、相关面试题 |
 | 知识树 | **6 层 23 节点** | 技术地基 → 变革判断 → 能力模型 → 方法论 → FDE 转型 → 行动 |
 | 笔记库 | **199 篇** | 技术线 167 篇 + 访谈线 32 篇（Dario Amodei / Kevin Weil / Mike Krieger / Boris Cherny / Cat Wu / Natalie Meurer / Dianne Penn / Tara Seshan…） |
 | 金句库 | **23 条** | 中英对照，标注「原话 / 转述」 |
@@ -41,6 +48,16 @@
 **两个知识库合并**：
 - `ai知识库/`（技术线：Python、RAG、Agent、全栈、求职面试）
 - `~/Desktop/youtube/AI-PM-FDE知识库/`（访谈线：AI PM × FDE）
+
+### 访谈库分级
+
+| 级别 | 含义 | 代表 |
+|---|---|---|
+| 🏆 S 级 · 必须精读 | 嘉宾是「当事人」，官方逐字稿或要点齐全 | Kevin Weil（OpenAI CPO）、Mike Krieger（Anthropic CPO）、Boris Cherny（Claude Code）、Cat Wu、Dianne Penn、Tara Seshan、Hamel & Shreya（Evals）、Dario Amodei |
+| 🥇 A 级 · 深度补充 | 一手视角或垂直领域深挖 | Natalie Meurer（FDE）、Tech With Tim、Jen Abel、Tom Verrilli、Pawel Huryn、Tibor/Codex、Sam Altman、Palantir 首席架构师 |
+| 🥈 B 级 · 实战视角 | 产品 / 商业 / GTM 的对照面 | 独立开发者 Tibo Louis-Lucas、Gibson Biddle、Marty Cagan、Decagon 创始人 |
+
+每张访谈卡片可展开：**这期讲什么 → 核心要点 → 可直接引用的金句 → 深读完整笔记 → 相关面试题**。
 
 ---
 
@@ -56,7 +73,8 @@ interview/                  # 站点本体（部署入口）
 │   ├── media-bank.js       # 生成：827 题媒体题库
 │   ├── tree.js             # 手写：五层知识树
 │   ├── quotes.js           # 手写：金句库
-│   └── questions.js        # 手写：42 题深度精讲
+│   ├── questions.js        # 手写：42 题深度精讲
+│   └── interviews.js       # 手写：26 场访谈库
 ├── sw.js                   # Service Worker（离线）
 └── manifest.webmanifest    # PWA（添加到主屏幕）
 
@@ -65,6 +83,7 @@ tools/
 ├── build-interview.mjs     # 扫描两个知识库 → 索引 + 正文包
 ├── build-media-bank.mjs    # 解析 research/*.md → media-bank.js
 ├── verify-interview.mjs    # 全链路校验（语法 + 交叉引用 + 覆盖度）
+├── smoke-render.mjs        # 渲染冒烟测试（DOM 垫片跑遍所有页面，抓异常/undefined）
 └── serve.mjs               # 本地预览（手机同局域网可访问）
 research/                   # 媒体题库原始采集稿（保留可追溯）
 ```
@@ -83,11 +102,14 @@ node tools/build-media-bank.mjs
 # 3) 校验（必须全绿）
 node tools/verify-interview.mjs
 
-# 4) 本地预览（手机连同一 WiFi 可打开提示的局域网地址）
+# 4) 渲染冒烟测试（改了 app.js / style.css 之后必跑）
+node tools/smoke-render.mjs
+
+# 5) 本地预览（手机连同一 WiFi 可打开提示的局域网地址）
 node tools/serve.mjs
 ```
 
-零依赖，只需要 Node。修改 `tree.js` / `questions.js` / `quotes.js` 是手写内容，不会被构建脚本覆盖。
+零依赖，只需要 Node。`tree.js` / `questions.js` / `quotes.js` / `interviews.js` 是手写内容，不会被构建脚本覆盖。
 
 ---
 

@@ -153,6 +153,33 @@ else {
   if (clash) bad(`与精讲题库 id 冲突 ${clash} 个`);
 }
 
+// ---- 8. 访谈库 ----
+head("8) 访谈库");
+const IV = W.INTERVIEW_LIB;
+if (!IV) bad("INTERVIEW_LIB 缺失");
+else {
+  ok(`${IV.items.length} 场访谈，分 ${IV.tiers.length} 档`);
+  const tiers = new Set(IV.tiers.map((t) => t.id));
+  const ids = new Set();
+  let noNote = 0, badNote = 0, noUrl = 0;
+  for (const i of IV.items) {
+    if (ids.has(i.id)) bad(`访谈 id 重复: ${i.id}`);
+    ids.add(i.id);
+    if (!tiers.has(i.tier)) bad(`${i.id}: 分级不存在 ${i.tier}`);
+    if (!i.guest || !i.title) bad(`${i.id}: 缺嘉宾或标题`);
+    if (i.note) { if (!paths.has(i.note)) { bad(`${i.id}: 关联笔记不存在 ${i.note}`); badNote++; } }
+    else noNote++;
+    if (!i.url) noUrl++;
+  }
+  if (!badNote) ok(`${IV.items.length - noNote} 场已关联可深读笔记，引用全部有效`);
+  ok(`带观看链接 ${IV.items.length - noUrl}/${IV.items.length}（未加工期暂无链接属正常）`);
+  const byTier = {};
+  for (const i of IV.items) byTier[i.tier] = (byTier[i.tier] || 0) + 1;
+  console.log("     分级分布: " + IV.tiers.map((t) => `${t.id} 级 ${byTier[t.id] || 0}`).join(" / "));
+  const withQuote = IV.items.filter((i) => (i.quotes || []).length).length;
+  ok(`带金句的访谈：${withQuote}/${IV.items.length}`);
+}
+
 const totalQ = BANK.questions.length + (MB ? MB.meta.total : 0);
 ok(`题库合计：${totalQ} 题（精讲 ${BANK.questions.length} + 媒体 ${MB ? MB.meta.total : 0}）`);
 

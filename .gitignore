@@ -19,3 +19,6 @@ desktop.ini
 # 系统
 $RECYCLE.BIN/
 .DS_Store
+
+# Agent 工作记忆（含个人画像，不发布到公开仓库）
+CODELY.md
