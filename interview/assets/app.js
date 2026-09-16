@@ -10,6 +10,7 @@
   const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
   const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const DAY = 864e5;
+  const APP_VERSION = "v4 · 2026-09-16";
   const todayStr = () => new Date().toLocaleDateString("sv");
   const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
 
@@ -957,11 +958,18 @@
         <div class="muted" style="margin-top:11px">共 ${BANK.questions.length} 精讲题 + ${MEDIA.meta.total} 媒体题 / ${tp.total} 个知识树节点 / ${IVLIB.items.length} 场访谈。存档为 JSON，可复制到手机浏览器粘贴导入。</div>
       </div>
 
+      <div class="sec">🔗 其它学习站</div>
+      <div class="rows">
+        <a class="row" href="../study/index.html"><span class="row-i">📖</span><span class="row-b"><span class="row-t">学习站</span><span class="row-m">全库笔记网页阅读，双链可点、可搜索</span></span><span class="row-x">›</span></a>
+        <a class="row" href="../practice/index.html"><span class="row-i">🏝️</span><span class="row-b"><span class="row-t">AI 冒险岛</span><span class="row-m">Python 练习场：浏览器里跑真实 Python</span></span><span class="row-x">›</span></a>
+        <a class="row" href="../feynman/index.html"><span class="row-i">🎓</span><span class="row-b"><span class="row-t">费曼学检场</span><span class="row-m">盲讲 → 找差 → 简讲 → 出关，自动排复习</span></span><span class="row-x">›</span></a>
+      </div>
+
       <div class="sec">ℹ️ 数据说明</div>
       <div class="card muted">
         内容来自两个知识库：<b style="color:var(--tx)">技术线</b>（Python / RAG / Agent / 全栈）+ <b style="color:var(--tx)">访谈线</b>（Dario Amodei、Kevin Weil、Mike Krieger、Boris Cherny、Cat Wu、Natalie Meurer、Dianne Penn、Tara Seshan…）。
         精讲题库的「访谈证据」中，标<b style="color:var(--amber)">原话</b>的可回原文核对，标<b style="color:var(--tx2)">转述</b>的是二手表述；媒体题库来自公开面经聚合，答案框架多为来源方整理，<b style="color:var(--tx)">不是官方标准答案</b>，每条都附原始链接。
-        <div style="margin-top:10px">题库生成：${esc(BANK.generated)} · 笔记快照：${esc(IDX.meta.generatedAt)} · 访谈库：${esc(IVLIB.generated)}</div>
+        <div style="margin-top:10px">版本 <b style="color:var(--teal)">${esc(APP_VERSION)}</b> · 题库生成：${esc(BANK.generated)} · 笔记快照：${esc(IDX.meta.generatedAt)} · 访谈库：${esc(IVLIB.generated)}</div>
       </div>
     `;
     $("#theme-btn").onclick = () => { toggleTheme(); renderMe(); };
@@ -1031,8 +1039,16 @@
     applyTheme();
     route();
 
+    // Service Worker：网络优先策略；新版本接管后自动刷新一次
     if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
+      const hadController = !!navigator.serviceWorker.controller;
       navigator.serviceWorker.register("sw.js").catch(() => {});
+      navigator.serviceWorker.addEventListener("controllerchange", () => {
+        if (!hadController || window.__swRefreshed) return;
+        window.__swRefreshed = true;
+        toast("已更新到最新版，正在刷新…");
+        setTimeout(() => location.reload(), 800);
+      });
     }
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
