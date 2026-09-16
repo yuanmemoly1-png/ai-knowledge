@@ -52,6 +52,15 @@ if (!BANK) bad("QUESTION_BANK 缺失");
 if (!QUOTES) bad("QUOTE_BANK 缺失");
 if (fail) { console.log("\n致命错误，终止"); process.exit(1); }
 ok(`笔记索引 ${IDX.notes.length} 篇 / ${IDX.chunks.length} 个模块包`);
+
+// 隐私护栏：Agent 工作记忆 / 仓库说明绝不能混进笔记库（会随 GitHub Pages 公开发布）
+{
+  const FORBIDDEN = [/CODELY\.md/i, /^README\.md$/i, /^CLAUDE\.md$/i, /^AGENTS\.md$/i];
+  const leaked = IDX.notes.filter((n) => FORBIDDEN.some((re) => re.test(n.p)));
+  if (leaked.length) bad(`隐私护栏：笔记库混入了不应发布的内容 → ${leaked.map((n) => n.p).join(", ")}`);
+  else ok("隐私护栏：笔记库不含 CODELY.md / README.md 等工作记忆文件");
+}
+
 ok(`知识树 ${TREE.layers.length} 层 / ${TREE.layers.reduce((s, l) => s + l.nodes.length, 0)} 个节点`);
 ok(`题库 ${BANK.questions.length} 题 · 岗位 ${BANK.roles.length} · 模块 ${BANK.modules.length}`);
 ok(`金句 ${QUOTES.length} 条`);
@@ -216,7 +225,7 @@ if (BOOK && TB) {
   if (orphans.length) bad(`正文中有目录外孤儿节: ${orphans.join(", ")}`);
 
   // 字段完整性与篇幅
-  let thin = 0, noEv = 0, badRel = 0, badQs = 0, shortBody = 0, longBody = 0, cjkMin = 1e9, cjkMax = 0;
+  let thin = 0, noEv = 0, badRel = 0, badQs = 0, shortBody = 0, longBody = 0, cjkMin = 1e9, cjkMax = 0, noFrom = 0;
   const REQ = ["id", "t", "why", "learn", "body", "keypoints", "pitfalls", "rel", "qs"];
   for (const id of tbIds) {
     const s = TB[id];
@@ -224,18 +233,22 @@ if (BOOK && TB) {
     if (s.id !== id) bad(`${id}: id 字段与键不一致 (${s.id})`);
     if (!s.learn || s.learn.length < 4) thin++;
     if (!(s.ev instanceof Array)) noEv++;
+    // 第七篇（按原书体系重组）必须标注出处
+    if (/^(1[89]|2[0-2])\./.test(id) && !s.from) { bad(`${id}: 第七篇缺 from 字段`); noFrom++; }
     for (const p of s.rel || []) if (!paths.has(p)) { bad(`${id}: 关联笔记不存在 ${p}`); badRel++; }
     for (const q of s.qs || []) if (!ids.has(q)) { bad(`${id}: 关联真题不存在 ${q}`); badQs++; }
     const cjk = (String(s.body).match(/[\u4e00-\u9fa5]/g) || []).length;
     if (cjk < cjkMin) cjkMin = cjk;
     if (cjk > cjkMax) cjkMax = cjk;
     if (cjk < 180) shortBody++;
-    if (cjk > 900) longBody++;
+    // 第七篇按原书体系重组，第 21 章原书本身最厚，放宽上限
+    const longLimit = /^(1[89]|2[0-2])\./.test(id) ? 1600 : 900;
+    if (cjk > longLimit) longBody++;
   }
   if (!badRel) ok(`关联笔记引用全部有效`);
   if (!badQs) ok(`关联真题引用全部有效`);
   if (shortBody) bad(`${shortBody} 节正文过短（< 180 汉字）`);
-  if (longBody) bad(`${longBody} 节正文过长（> 900 汉字）`);
+  if (longBody) bad(`${longBody} 节正文过长（P1-P6 > 900 汉字 / P7 > 1600 汉字）`);
   ok(`正文字数（汉字）区间：${cjkMin} ~ ${cjkMax}`);
 
   // 关联覆盖率

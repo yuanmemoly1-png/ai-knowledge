@@ -1,6 +1,6 @@
 // Service Worker：网络优先 + 离线回落
-// v5 起改为 network-first —— 在线时永远拿到最新版，断网时用缓存兜底
-const VERSION = "v5-2026-09-16";
+// v6 起改为 network-first —— 在线时永远拿到最新版，断网时用缓存兜底
+const VERSION = "v6-2026-09-16";
 const SHELL = [
   "./",
   "./index.html",
@@ -18,6 +18,10 @@ const SHELL = [
   "./data/tb-p4.js",
   "./data/tb-p5.js",
   "./data/tb-p6.js",
+  "./data/tb-p7a.js",
+  "./data/tb-p7b.js",
+  "./data/tb-p7c.js",
+  "./data/tb-p7d.js",
   "./data/quotes.js",
   "./data/questions.js",
   "./data/media-bank.js",

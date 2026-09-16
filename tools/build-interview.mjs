@@ -30,6 +30,11 @@ const SKIP_A = new Set([
 ]);
 const SKIP_B = new Set([".obsidian", ".codely", ".codely-cli", ".git", ".trash"]);
 
+// 绝不进入学习站的文件：
+//   CODELY.md 是 Agent 工作记忆（含个人画像），发布出去等于泄露隐私
+//   README / CLAUDE / AGENTS 是仓库说明，不是学习笔记
+const SKIP_FILES = new Set(["CODELY.md", "README.md", "CLAUDE.md", "AGENTS.md"]);
+
 // ---------- 工具 ----------
 
 function walk(dir, skip) {
@@ -38,6 +43,7 @@ function walk(dir, skip) {
   try { entries = fs.readdirSync(dir, { withFileTypes: true }); } catch { return out; }
   for (const ent of entries) {
     if (skip.has(ent.name)) continue;
+    if (ent.isFile() && SKIP_FILES.has(ent.name)) continue;
     const p = path.join(dir, ent.name);
     if (ent.isDirectory()) out.push(...walk(p, skip));
     else if (ent.isFile() && ent.name.toLowerCase().endsWith(".md")) out.push(p);

@@ -386,6 +386,7 @@
         <span class="tb-pct">${pr.read}/${pr.total}</span>
       </div>
       ${p.goal ? `<div class="tb-goal">🎯 ${esc(p.goal)}</div>` : ""}
+      ${p.badge ? `<div class="tb-badge">${esc(p.badge)}</div>` : ""}
       <div class="meter" style="margin-top:11px"><i class="${pr.pct < 34 ? "bad" : pr.pct < 67 ? "warn" : "ok"}" style="width:${pr.pct}%"></i></div>
       <div class="tb-part-m">${chCount > 1 ? chCount + " 章 · " : ""}${pr.total} 节</div>
     </button>`;
@@ -403,6 +404,7 @@
             <div class="kicker">${esc(p.no)}</div>
             <h1>${esc(p.title)}</h1>
             ${p.goal ? `<p>🎯 ${esc(p.goal)}</p>` : ""}
+            ${p.badge ? `<p class="tb-badge" style="margin-top:8px">${esc(p.badge)}</p>` : ""}
           </div>
           ${RING(pr.pct, "已学")}
         </div>
@@ -457,6 +459,7 @@
         </div>
       </div>
 
+      ${s.from ? `<div class="tb-from">📖 出处 · ${esc(s.from)}</div>` : ""}
       ${s.why ? `<div class="tb-panel why"><b>为什么学这节</b><span>${esc(s.why)}</span></div>` : ""}
       ${s.learn ? `<div class="tb-panel learn"><b>学完的标志</b><span>${esc(s.learn)}</span></div>` : ""}
 
