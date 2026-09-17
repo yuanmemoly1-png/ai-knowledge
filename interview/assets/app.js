@@ -10,7 +10,40 @@
   const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
   const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const DAY = 864e5;
-  const APP_VERSION = "v5 · 2026-09-16";
+  const APP_VERSION = "v7 · 2026-09-17（设计系统 v4）";
+
+  /* ---------------- 图标系统：内联 SVG（24 网格 / 1.6 线宽 / 圆头圆角） ----------------
+     不用 emoji、不用文字字形：字形在不同设备上字重与基线都不一致，一眼就是占位符。
+     所有图标同一套几何规则，随字色变化（stroke="currentColor"）。 */
+  const ICONS = {
+    today: '<rect x="3.25" y="5" width="17.5" height="15.6" rx="2.6"/><path d="M8 2.8v4.2M16 2.8v4.2M3.25 10.6h17.5"/><circle cx="12" cy="15.6" r="1.35" fill="currentColor" stroke="none"/>',
+    book: '<path d="M12 6.7C10.1 5.05 7.7 4.25 5 4.25H3.4v13.5H5c2.7 0 5.1.8 7 2.45 1.9-1.65 4.3-2.45 7-2.45h1.6V4.25H19c-2.7 0-5.1.8-7 2.45Z"/><path d="M12 6.7v13.5"/>',
+    bank: '<circle cx="12" cy="12" r="8.6"/><path d="M9.6 9.6a2.5 2.5 0 1 1 3.3 2.4c-.8.3-1.3 1-1.3 1.8v.3"/><circle cx="11.6" cy="17.05" r="0.95" fill="currentColor" stroke="none"/>',
+    mic: '<rect x="9.25" y="2.9" width="5.5" height="10.4" rx="2.75"/><path d="M5.4 11.2a6.6 6.6 0 0 0 13.2 0"/><path d="M12 17.8v3.3"/>',
+    notes: '<path d="M14.2 2.9H7.1a2.2 2.2 0 0 0-2.2 2.2v13.8a2.2 2.2 0 0 0 2.2 2.2h9.8a2.2 2.2 0 0 0 2.2-2.2V7.6l-4.9-4.7Z"/><path d="M14.2 2.9v4.7h4.9"/><path d="M9 13.3h6M9 16.8h3.6"/>',
+    me: '<circle cx="12" cy="8.2" r="3.6"/><path d="M4.9 20.4a7.1 7.1 0 0 1 14.2 0"/>',
+    sun: '<circle cx="12" cy="12" r="4.1"/><path d="M12 2.6v2.3M12 19.1v2.3M4.35 4.35 5.9 5.9M18.1 18.1l1.55 1.55M2.6 12h2.3M19.1 12h2.3M4.35 19.65 5.9 18.1M18.1 5.9l1.55-1.55"/>',
+    moon: '<path d="M20.2 14.6A8.6 8.6 0 0 1 9.4 3.8a8.6 8.6 0 1 0 10.8 10.8Z"/>',
+    spark: '<path d="M12 2.9l2.25 6.85L21.1 12l-6.85 2.25L12 21.1l-2.25-6.85L2.9 12l6.85-2.25L12 2.9Z"/>',
+    search: '<circle cx="10.8" cy="10.8" r="6.4"/><path d="M15.5 15.5 20.6 20.6"/>',
+    fire: '<path d="M12 2.9c2.4 2 4.4 4.6 4.4 7.5a4.4 4.4 0 0 1-8.8 0c0-1.2.5-2.2.9-2.9.6 1 1.3 1.4 2 1.4 1.3 0 1.9-1.2 1.9-2.6 0-1.2-.4-2.4-.4-3.4Z"/><path d="M12 21.2a5.6 5.6 0 0 0 5.6-5.6c0-1.3-.4-2.5-1-3.5"/>',
+    pen: '<path d="M4 20h4.2L19 9.2a2.6 2.6 0 0 0 0-3.7l-.5-.5a2.6 2.6 0 0 0-3.7 0L4 15.8V20Z"/><path d="M13.9 6.1 17.9 10.1"/>',
+    stack: '<path d="M12 3.3 3.5 7.8 12 12.3l8.5-4.5L12 3.3Z"/><path d="M3.5 12.7 12 17.2l8.5-4.5"/>',
+    grid: '<rect x="3.4" y="3.4" width="7.4" height="7.4" rx="2.2"/><rect x="13.2" y="3.4" width="7.4" height="7.4" rx="2.2"/><rect x="3.4" y="13.2" width="7.4" height="7.4" rx="2.2"/><rect x="13.2" y="13.2" width="7.4" height="7.4" rx="2.2"/>',
+    check: '<path d="M4.6 12.7 9.4 17.5 19.4 7.3"/>',
+    clock: '<circle cx="12" cy="12" r="8.6"/><path d="M12 7.1V12l3.3 2"/>',
+    link: '<path d="M9.6 14.4a3.6 3.6 0 0 1 0-5.1l2.6-2.6a3.6 3.6 0 0 1 5.1 5.1l-1 1"/><path d="M14.4 9.6a3.6 3.6 0 0 1 0 5.1l-2.6 2.6a3.6 3.6 0 0 1-5.1-5.1l1-1"/>',
+    bulb: '<path d="M9.2 17.2h5.6M10 20.4h4"/><path d="M12 3.4a5.6 5.6 0 0 0-3.2 10.2v1.4h6.4v-1.4A5.6 5.6 0 0 0 12 3.4Z"/>',
+    warn: '<path d="M12 4.3 21 19.7H3L12 4.3Z"/><path d="M12 10v3.6"/><circle cx="12" cy="16.6" r="0.95" fill="currentColor" stroke="none"/>',
+    shield: '<path d="M12 3.3 4.9 6v6.1c0 4 3 7.4 7.1 8.6 4.1-1.2 7.1-4.6 7.1-8.6V6L12 3.3Z"/><path d="M9.3 12.2 11.4 14.3 15 10.7"/>',
+    chart: '<path d="M4 20h16"/><path d="M7.3 20V12M12 20V5.6M16.7 20v-5.6"/>',
+  };
+  function ICON(name, size) {
+    const d = ICONS[name] || ICONS.grid;
+    const s = size || 22;
+    return `<svg class="ico" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+  }
+
   const todayStr = () => new Date().toLocaleDateString("sv");
   const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
 
@@ -44,7 +77,7 @@
   function applyTheme() {
     document.documentElement.dataset.theme = S.theme === "light" ? "light" : "dark";
     const btn = $("#btn-theme");
-    if (btn) btn.textContent = S.theme === "light" ? "🌙" : "☀️";
+    if (btn) btn.innerHTML = ICON(S.theme === "light" ? "moon" : "sun", 19);
   }
   function toggleTheme() {
     S.theme = S.theme === "light" ? "dark" : "light";
@@ -196,12 +229,12 @@
 
   /* ---------------- 路由 ---------------- */
   const TABS = [
-    { id: "today", icon: "◎", label: "今日" },
-    { id: "book", icon: "❖", label: "教材" },
-    { id: "bank", icon: "✦", label: "题库" },
-    { id: "iv", icon: "▶", label: "访谈" },
-    { id: "notes", icon: "▤", label: "笔记" },
-    { id: "me", icon: "◇", label: "我的" },
+    { id: "today", icon: "today", label: "今日" },
+    { id: "book", icon: "book", label: "教材" },
+    { id: "bank", icon: "bank", label: "题库" },
+    { id: "iv", icon: "mic", label: "访谈" },
+    { id: "notes", icon: "notes", label: "笔记" },
+    { id: "me", icon: "me", label: "我的" },
   ];
   const MAP = { today: "today", book: "book", tree: "book", bank: "bank", iv: "iv", notes: "notes", me: "me", q: "bank", mq: "bank", note: "notes", ivd: "iv", tb: "book" };
 
@@ -295,12 +328,12 @@
       </div>
 
       <div class="tiles">
-        <button class="tile hot" data-go="${todo.length ? `#/book/${todo[0].part.id}/${todo[0].id}` : "#/book"}"><i>❖</i><b>${todo.length ? "继续学教材" : "教材目录"}</b><span>${esc(BOOK.title)} ${ALL_SECS.length} 节</span></button>
-        <button class="tile" data-random="1"><i>✦</i><b>随机抽题</b><span>从 ${BANK.questions.length + MEDIA.meta.total} 题里掷一次</span></button>
-        <button class="tile" data-go="#/iv"><i>▶</i><b>访谈精选</b><span>${IVLIB.items.length} 场一线访谈</span></button>
+        <button class="tile hot" data-go="${todo.length ? `#/book/${todo[0].part.id}/${todo[0].id}` : "#/book"}"><i>${ICON("book", 20)}</i><b>${todo.length ? "继续学教材" : "教材目录"}</b><span>${esc(BOOK.title)} ${ALL_SECS.length} 节</span></button>
+        <button class="tile" data-random="1"><i>${ICON("spark", 20)}</i><b>随机抽题</b><span>从 ${BANK.questions.length + MEDIA.meta.total} 题里掷一次</span></button>
+        <button class="tile" data-go="#/iv"><i>${ICON("mic", 20)}</i><b>访谈精选</b><span>${IVLIB.items.length} 场一线访谈</span></button>
       </div>
 
-      <div class="sec">${due.length ? `⏰ 到期复习 <span class="n">${due.length}</span>` : "⏰ 到期复习"}</div>
+      <div class="sec">${due.length ? `到期复习 <span class="n">${due.length}</span>` : "到期复习"}</div>
       ${due.length ? `<div class="rows">${due.slice(0, 3).map((q) => `
         <button class="row" data-go="#/q/${q.id}">
           <span class="row-i grad"></span>
@@ -327,7 +360,7 @@
       ${mods.length ? `<div class="sec">最该补的模块</div>
       <div class="card">
         ${mods.map((x) => `<div class="radar-row">
-          <span class="rn">${x.m.icon} ${esc(x.m.name)}</span>
+          <span class="rn">${esc(x.m.name)}</span>
           <div class="meter"><i class="${x.s.pct < 34 ? "bad" : x.s.pct < 67 ? "warn" : "ok"}" style="width:${x.s.pct}%"></i></div>
           <span class="rv">${x.s.pct}%</span></div>`).join("")}
         <button class="btn block sm" style="margin-top:12px" data-go="#/bank/${""}/${mods[0].m.id}">去练 ${esc(mods[0].m.name)} →</button>
@@ -486,7 +519,7 @@
       <div class="card">
         ${st.note ? `<div class="practice" style="margin-bottom:12px">我的理解：${esc(st.note)}</div>` : ""}
         <div class="btn-row">
-          <button class="btn ${st.read ? "ghost" : "ok"}" data-tbread="${esc(sid)}">${st.read ? "取消已学" : "✓ 标记已学"}</button>
+          <button class="btn ${st.read ? "ghost" : "ok"}" data-tbread="${esc(sid)}">${st.read ? "取消已学" : ICON("check", 15) + " 标记已学"}</button>
           <button class="btn ghost" data-tbnote="${esc(sid)}">写一句我自己的话</button>
         </div>
         <div class="muted" style="margin-top:11px">讲不出来就不算学会。点右边那句，用你自己的话把这一节复述一遍。</div>
@@ -502,7 +535,7 @@
   /* ================= 题库 ================= */
   let bankFilter = { role: "", mod: "" };
   let bankMediaFilter = { role: "", kw: "" };
-  const MEDIA_ROLE_SHORT = { "llm-algo": "算法", "agent-app": "应用/Agent", "llmops": "LLMOps", "ai-pm": "AI PM", "fde": "FDE", "": "📎 其他" };
+  const MEDIA_ROLE_SHORT = { "llm-algo": "算法", "agent-app": "应用/Agent", "llmops": "LLMOps", "ai-pm": "AI PM", "fde": "FDE", "": "其他" };
 
   function renderBank(roleArg, modArg) {
     const params = new URLSearchParams(location.hash.split("?")[1] || "");
@@ -514,7 +547,7 @@
     let list = BANK.questions.slice();
     if (bankFilter.role) list = list.filter((q) => q.role === bankFilter.role);
     if (bankFilter.mod) list = list.filter((q) => q.mod === bankFilter.mod);
-    const F = { high: "高频", mid: "◻ 常规", low: "· 长尾" };
+    const F = { high: "高频", mid: "常规", low: "长尾" };
 
     $("#view-bank").innerHTML = `
       <div class="seg">
@@ -528,11 +561,11 @@
       </div>
       <div class="chips">
         <button class="chip ${!bankFilter.role ? "on" : ""}" data-fr="">全部岗位</button>
-        ${BANK.roles.map((r) => `<button class="chip ${bankFilter.role === r.id ? "on" : ""}" data-fr="${r.id}">${r.icon} ${esc(r.name)}</button>`).join("")}
+        ${BANK.roles.map((r) => `<button class="chip ${bankFilter.role === r.id ? "on" : ""}" data-fr="${r.id}">${esc(r.name)}</button>`).join("")}
       </div>
       <div class="chips">
         <button class="chip ${!bankFilter.mod ? "on" : ""}" data-fm="">全部模块</button>
-        ${BANK.modules.filter((m) => !bankFilter.role || m.roles.includes(bankFilter.role)).map((m) => `<button class="chip ${bankFilter.mod === m.id ? "on" : ""}" data-fm="${m.id}">${m.icon} ${esc(m.name)}</button>`).join("")}
+        ${BANK.modules.filter((m) => !bankFilter.role || m.roles.includes(bankFilter.role)).map((m) => `<button class="chip ${bankFilter.mod === m.id ? "on" : ""}" data-fm="${m.id}">${esc(m.name)}</button>`).join("")}
       </div>
       <div class="btn-row" style="margin-bottom:14px">
         <button class="btn primary" data-go="#/bank?mock=1">⏱ 模拟面试（5 题）</button>
@@ -549,7 +582,7 @@
             ${done ? `<span class="tag done">Lv${st.box} 已练</span>` : '<span class="tag">未练</span>'}
           </div></button></li>`;
       }).join("")}</ul>
-      ${!list.length ? '<div class="card empty"><i>☰</i>这个筛选下还没有题目</div>' : ""}
+      ${!list.length ? '<div class="card empty"><i>${ICON("grid", 26)}</i>这个筛选下还没有题目</div>' : ""}
     `;
     $$("#view-bank .chip").forEach((c) => (c.onclick = () => {
       if (c.dataset.fr !== undefined) { bankFilter = { role: c.dataset.fr, mod: "" }; go("#/bank"); }
@@ -597,7 +630,7 @@
             ${st && st.n ? `<span class="tag done">已练 Lv${st.box}</span>` : ""}
           </div></button></li>`;
       }).join("")}</ul>
-      ${!list.length ? '<div class="card empty"><i>◌</i>没有匹配的题目</div>' : ""}
+      ${!list.length ? '<div class="card empty"><i>${ICON("search", 26)}</i>没有匹配的题目</div>' : ""}
     `;
     const si = $("#mq-search");
     si.addEventListener("input", () => {
@@ -645,9 +678,9 @@
       <div class="crumb" data-go="#/bank">‹ 题库${inMock ? ` · 模拟面试 ${step}/${mock.ids.length}` : ""}</div>
       <div class="q-head">
         <div class="tag-row">
-          <span class="tag ${q.freq === "high" ? "hot" : q.freq === "mid" ? "mid" : ""}">${q.freq === "high" ? "高频" : q.freq === "mid" ? "◻ 常规" : "长尾"}</span>
-          <span class="tag ${q.lv >= 3 ? "lv3" : ""}">深度 ${"●".repeat(q.lv)}${"○".repeat(3 - q.lv)}</span>
-          <span class="tag">${ROLE[q.role].icon} ${esc(ROLE[q.role].name)}</span>
+          <span class="tag ${q.freq === "high" ? "hot" : q.freq === "mid" ? "mid" : ""}">${q.freq === "high" ? "高频" : q.freq === "mid" ? "常规" : "长尾"}</span>
+          <span class="tag ${q.lv >= 3 ? "lv3" : ""}">深度 <span class="dots">${"<i></i>".repeat(q.lv)}${"<i class=\"off\"></i>".repeat(3 - q.lv)}</span></span>
+          <span class="tag">${esc(ROLE[q.role].name)}</span>
           <span class="tag">${esc(MOD[q.mod].name)}</span>
           ${st.n ? `<span class="tag done">已练 ${st.n} 次 · Lv${st.box}</span>` : ""}
         </div>
@@ -849,20 +882,20 @@
           ${RING(Math.round((withNote / Math.max(1, all.length)) * 100), "已加工")}
         </div>
         <div class="hero-stats">
-          ${IVLIB.tiers.map((t) => `<div class="hstat"><b>${all.filter((i) => i.tier === t.id).length}</b><span>${t.icon} ${t.name.split(" · ")[0]}</span></div>`).join("")}
+          ${IVLIB.tiers.map((t) => `<div class="hstat"><b>${all.filter((i) => i.tier === t.id).length}</b><span>${t.name.split(" · ")[0]}</span></div>`).join("")}
         </div>
       </div>
 
       <input class="search" id="iv-search" placeholder="搜嘉宾 / 主题（如 Evals、FDE、MCP、Boris）" value="${esc(ivFilter.kw)}">
       <div class="chips" style="margin-top:12px">
         <button class="chip ${!ivFilter.tier ? "on" : ""}" data-t="">全部 ${all.length}</button>
-        ${IVLIB.tiers.map((t) => `<button class="chip ${ivFilter.tier === t.id ? "on" : ""}" data-t="${t.id}">${t.icon} ${t.name.split(" · ")[0]} ${all.filter((i) => i.tier === t.id).length}</button>`).join("")}
+        ${IVLIB.tiers.map((t) => `<button class="chip ${ivFilter.tier === t.id ? "on" : ""}" data-t="${t.id}">${t.name.split(" · ")[0]} ${all.filter((i) => i.tier === t.id).length}</button>`).join("")}
       </div>
 
       ${IVLIB.tiers.filter((t) => !ivFilter.tier || t.id === ivFilter.tier).map((t) => {
         const sub = list.filter((i) => i.tier === t.id);
         if (!sub.length) return "";
-        return `<div class="sec">${t.icon} ${esc(t.name)}</div>
+        return `<div class="sec">${esc(t.name)}</div>
         <div class="muted" style="margin:-4px 4px 12px">${esc(t.desc)}</div>
         ${sub.map(ivCard).join("")}`;
       }).join("")}
@@ -963,7 +996,7 @@
         <div style="font-size:15.4px;font-weight:650;line-height:1.66">${esc(i.title)}</div>
         ${(i.takeaways || []).length ? `<ul class="iv-take" style="margin-top:12px">${i.takeaways.map((t) => `<li>${esc(t)}</li>`).join("")}</ul>` : ""}
         <div class="btn-row" style="margin-top:14px">
-          ${i.url ? `<a class="btn primary" href="${esc(i.url)}" target="_blank" rel="noopener">▶ 去 YouTube / 原页看</a>` : '<span class="btn ghost" style="pointer-events:none;opacity:.55">链接待补</span>'}
+          ${i.url ? `<a class="btn primary" href="${esc(i.url)}" target="_blank" rel="noopener">${ICON("link", 15)} 去原页看</a>` : '<span class="btn ghost" style="pointer-events:none;opacity:.55">链接待补</span>'}
           ${i.extra && i.extra.url ? `<a class="btn" href="${esc(i.extra.url)}" target="_blank" rel="noopener">${esc(i.extra.title)}</a>` : ""}
           ${i.sister && i.sister.url ? `<a class="btn ghost" href="${esc(i.sister.url)}" target="_blank" rel="noopener">姊妹期</a>` : ""}
         </div>
@@ -981,7 +1014,7 @@
       <div class="card">
         <div class="muted" style="margin-bottom:11px">这期已经加工成结构化笔记（含要点表、框架、行动项）：</div>
         <button class="btn primary block" data-note="${esc(i.note)}">打开完整笔记 →</button>
-      </div>` : `<div class="card"><div class="empty" style="padding:14px 4px"><i>✎</i>这期还没加工成笔记。<br>先去原页看，回来可以让我补。</div></div>`}
+      </div>` : `<div class="card"><div class="empty" style="padding:14px 4px"><i>${ICON("pen", 26)}</i>这期还没加工成笔记。<br>先去原页看，回来可以让我补。</div></div>`}
 
       ${rq.length ? `<div class="sec">相关的面试题</div>
       <ul class="qlist">${rq.map((q) => `<li><button class="qitem" data-go="#/q/${q.id}">
@@ -1013,7 +1046,7 @@
         <span class="np">${esc(n.p)} · ${n.m} 分钟</span>
       </button></li>`).join("")}</ul>
       ${list.length > 300 ? '<div class="muted center" style="margin-top:12px">只显示前 300 条，用搜索缩小范围</div>' : ""}
-      ${!list.length ? '<div class="card empty"><i>☰</i>没有匹配的笔记</div>' : ""}
+      ${!list.length ? '<div class="card empty"><i>${ICON("search", 26)}</i>没有匹配的笔记</div>' : ""}
     `;
     const si = $("#note-search");
     si.addEventListener("input", () => {
@@ -1039,12 +1072,12 @@
     host.innerHTML = `
       <div class="crumb" data-go="#/notes">‹ 笔记库</div>
       <div class="tag-row" style="margin-bottom:12px">
-        <span class="tag">${n.v === "B" ? "▶ 访谈库" : "▤ 知识库"}</span>
+        <span class="tag">${n.v === "B" ? "访谈库" : "知识库"}</span>
         <span class="tag">${n.m} 分钟</span>
         ${(n.g || []).slice(0, 4).map((t) => `<span class="tag">#${esc(t)}</span>`).join("")}
       </div>
       <div class="article">${MD.render(body)}</div>
-      ${iv ? `<div class="sec">▶ 这场访谈</div><div class="card"><button class="btn primary block" data-go="#/ivd/${iv.id}">查看访谈卡片 · ${esc(iv.guest)} →</button></div>` : ""}
+      ${iv ? `<div class="sec">这场访谈</div><div class="card"><button class="btn primary block" data-go="#/ivd/${iv.id}">查看访谈卡片 · ${esc(iv.guest)} →</button></div>` : ""}
       ${relatedQ.length ? `<div class="sec">相关面试题 ${relatedQ.length}</div>
       <ul class="qlist">${relatedQ.map((q) => `<li><button class="qitem" data-go="#/q/${q.id}"><div class="qt">${esc(q.q)}</div><div class="qm"><span class="tag ${q.freq === "high" ? "hot" : ""}">${q.freq === "high" ? "高频" : "题目"}</span><span class="tag">${esc(MOD[q.mod].name)}</span></div></button></li>`).join("")}</ul>` : ""}
       ${back.length ? `<div class="sec">反向链接 ${back.length}</div><div class="note-links">${back.map((b) => `<button class="btn sm" data-note="${esc(b.p)}">${esc(shortName(b.p))}</button>`).join("")}</div>` : ""}
@@ -1091,7 +1124,7 @@
         <div class="kpi"><b>${ivDone}</b><span>可读的访谈笔记</span></div>
       </div>
 
-      <div class="sec">⏰ 复习队列</div>
+      <div class="sec">复习队列</div>
       <div class="card">
         <div class="kv"><span>今天到期</span><b>${due} 题</b></div>
         <div class="kv"><span>已进入排期</span><b>${Object.keys(S.q).length} 题</b></div>
@@ -1101,10 +1134,10 @@
       <div class="sec">模块掌握度</div>
       <div class="card">
         ${mods.length ? mods.sort((a, b) => a.s.pct - b.s.pct).map((x) => `<div class="radar-row">
-          <span class="rn">${x.m.icon} ${esc(x.m.name)}</span>
+          <span class="rn">${esc(x.m.name)}</span>
           <div class="meter"><i class="${x.s.pct < 34 ? "bad" : x.s.pct < 67 ? "warn" : "ok"}" style="width:${x.s.pct}%"></i></div>
           <span class="rv">${x.s.pct}%</span></div>`).join("")
-        : '<div class="empty" style="padding:14px 4px"><i>◌</i>还没有数据。去题库练几道，这里会长出你的弱项雷达。</div>'}
+        : '<div class="empty" style="padding:14px 4px"><i>${ICON("chart", 26)}</i>还没有数据。去题库练几道，这里会长出你的弱项雷达。</div>'}
       </div>
 
       <div class="sec">我写的理解 ${notesList.length}</div>
@@ -1120,7 +1153,7 @@
       <div class="sec">设置与存档</div>
       <div class="card">
         <div class="btn-row">
-          <button class="btn" id="theme-btn">${S.theme === "light" ? "切到深色" : "切到浅色"}</button>
+          <button class="btn" id="theme-btn">${ICON(S.theme === "light" ? "moon" : "sun", 16)} ${S.theme === "light" ? "切到深色" : "切到浅色"}</button>
           <button class="btn" id="exp">导出存档</button>
           <button class="btn" id="imp">导入存档</button>
         </div>
@@ -1130,12 +1163,12 @@
 
       <div class="sec">其它学习站</div>
       <div class="rows">
-        <a class="row" href="../study/index.html"><span class="row-i"></span><span class="row-b"><span class="row-t">学习站</span><span class="row-m">全库笔记网页阅读，双链可点、可搜索</span></span><span class="row-x">›</span></a>
-        <a class="row" href="../practice/index.html"><span class="row-i">◇</span><span class="row-b"><span class="row-t">AI 冒险岛</span><span class="row-m">Python 练习场：浏览器里跑真实 Python</span></span><span class="row-x">›</span></a>
-        <a class="row" href="../feynman/index.html"><span class="row-i">◆</span><span class="row-b"><span class="row-t">费曼学检场</span><span class="row-m">盲讲 → 找差 → 简讲 → 出关，自动排复习</span></span><span class="row-x">›</span></a>
+        <a class="row" href="../study/index.html"><span class="row-i">${ICON("book", 19)}</span><span class="row-b"><span class="row-t">学习站</span><span class="row-m">全库笔记网页阅读，双链可点、可搜索</span></span><span class="row-x">›</span></a>
+        <a class="row" href="../practice/index.html"><span class="row-i">${ICON("spark", 19)}</span><span class="row-b"><span class="row-t">AI 冒险岛</span><span class="row-m">Python 练习场：浏览器里跑真实 Python</span></span><span class="row-x">›</span></a>
+        <a class="row" href="../feynman/index.html"><span class="row-i">${ICON("bulb", 19)}</span><span class="row-b"><span class="row-t">费曼学检场</span><span class="row-m">盲讲 → 找差 → 简讲 → 出关，自动排复习</span></span><span class="row-x">›</span></a>
       </div>
 
-      <div class="sec">ℹ️ 数据说明</div>
+      <div class="sec">数据说明</div>
       <div class="card muted">
         内容来自两个知识库：<b style="color:var(--tx)">技术线</b>（Python / RAG / Agent / 全栈）+ <b style="color:var(--tx)">访谈线</b>（Dario Amodei、Kevin Weil、Mike Krieger、Boris Cherny、Cat Wu、Natalie Meurer、Dianne Penn、Tara Seshan…）。
         精讲题库的「访谈证据」中，标<b style="color:var(--amber)">原话</b>的可回原文核对，标<b style="color:var(--tx2)">转述</b>的是二手表述；媒体题库来自公开面经聚合，答案框架多为来源方整理，<b style="color:var(--tx)">不是官方标准答案</b>，每条都附原始链接。
@@ -1202,7 +1235,7 @@
       return;
     }
     $("#tabbar").innerHTML = TABS.map((t) => `<button data-tab="${t.id}" data-go="#/${t.id}">
-      <i>${t.icon}</i><span>${t.label}</span>
+      <i>${ICON(t.icon, 23)}</i><span>${t.label}</span>
       ${t.id === "bank" ? '<span class="badge" id="tab-bank-badge" style="display:none"></span>' : ""}
     </button>`).join("");
     const tb = $("#btn-theme");

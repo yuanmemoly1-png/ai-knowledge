@@ -2,7 +2,8 @@
 // v7：深色主题精修（分层底色 / 收敛用色 / 清 emoji / 提对比度与触控区）
 // v8：补齐缺口节（Linux / 测试 / Docker / LLMOps / Computer Use）
 // v9：补齐建议级缺口（Git 协作 / LoRA 实操 / Evals 实操 / 简历包装）
-const VERSION = "v9-2026-09-17";
+// v10：设计系统 v4「书斋」——真 SVG 图标 / 中性石墨配色 / 编辑式排版
+const VERSION = "v10-2026-09-17";
 const SHELL = [
   "./",
   "./index.html",
