@@ -235,7 +235,7 @@
   function paintTop() {
     const due = dueList().length;
     const st = $("#top-streak");
-    if (st) st.innerHTML = `🔥 <b>${S.streak.days || 0}</b> 天`;
+    if (st) st.innerHTML = `<b>${S.streak.days || 0}</b> 天`;
     const b = $("#tab-bank-badge");
     if (b) { if (due > 0) { b.textContent = due > 99 ? "99+" : due; b.style.display = ""; } else b.style.display = "none"; }
   }
@@ -266,7 +266,7 @@
       ${q.en ? `<div class="q-en">“${esc(q.en)}”</div>` : ""}
       <div class="by" style="margin-top:8px">— ${esc(q.by)}${q.exact ? "" : "（转述）"}${q.url ? ` · <a href="${esc(q.url)}" target="_blank" rel="noopener">来源</a>` : ""}</div>
     </div>` : "";
-  const NOTE_BTN = (p) => `<button class="btn sm" data-note="${esc(p)}">📖 深读：${esc(shortName(p))}</button>`;
+  const NOTE_BTN = (p) => `<button class="btn sm" data-note="${esc(p)}">深读：${esc(shortName(p))}</button>`;
 
   /* ================= 今日 ================= */
   function renderToday() {
@@ -303,16 +303,16 @@
       <div class="sec">${due.length ? `⏰ 到期复习 <span class="n">${due.length}</span>` : "⏰ 到期复习"}</div>
       ${due.length ? `<div class="rows">${due.slice(0, 3).map((q) => `
         <button class="row" data-go="#/q/${q.id}">
-          <span class="row-i grad">🔁</span>
+          <span class="row-i grad"></span>
           <span class="row-b">
             <span class="row-t">${esc(q.q)}</span>
             <span class="row-m"><span class="tag due">该复习了</span><span class="tag">${esc(MOD[q.mod].name)}</span></span>
           </span><span class="row-x">›</span>
         </button>`).join("")}
         ${due.length > 3 ? `<button class="btn ghost block sm" data-go="#/bank">查看全部 ${due.length} 道到期 →</button>` : ""}</div>`
-      : `<div class="card"><div class="empty" style="padding:16px 4px"><i>🫧</i>今天没有到期题目。<br>做过的题会按 6 小时 / 1 / 3 / 7 / 15 / 30 天回来找你。</div></div>`}
+      : `<div class="card"><div class="empty" style="padding:16px 4px"><i></i>今天没有到期题目。<br>做过的题会按 6 小时 / 1 / 3 / 7 / 15 / 30 天回来找你。</div></div>`}
 
-      <div class="sec">📚 继续往下学</div>
+      <div class="sec">继续往下学</div>
       <div class="rows">
         ${todo.map((x) => `
           <button class="row" data-go="#/book/${x.part.id}/${x.id}">
@@ -321,10 +321,10 @@
               <span class="row-t">${esc(secTitle(x.id))}</span>
               <span class="row-m">${esc(x.part.no)} · ${esc(x.chapter.title)}</span>
             </span><span class="row-x">›</span>
-          </button>`).join("") || `<div class="card muted">教材已经全部学过一遍 🎉 回题库巩固，或去访谈里找新东西。</div>`}
+          </button>`).join("") || `<div class="card muted">教材已经全部学过一遍 回题库巩固，或去访谈里找新东西。</div>`}
       </div>
 
-      ${mods.length ? `<div class="sec">📉 最该补的模块</div>
+      ${mods.length ? `<div class="sec">最该补的模块</div>
       <div class="card">
         ${mods.map((x) => `<div class="radar-row">
           <span class="rn">${x.m.icon} ${esc(x.m.name)}</span>
@@ -333,7 +333,7 @@
         <button class="btn block sm" style="margin-top:12px" data-go="#/bank/${""}/${mods[0].m.id}">去练 ${esc(mods[0].m.name)} →</button>
       </div>` : ""}
 
-      <div class="sec">💬 今日金句</div>
+      <div class="sec">今日金句</div>
       <div class="card" style="padding:16px">${quoteHTML(QUOTES[Math.floor(Math.random() * QUOTES.length)])}</div>
     `;
     const r = $("#view-today [data-random]");
@@ -365,7 +365,7 @@
       </div>
 
       <div class="card" style="border-left:3px solid var(--teal)">
-        <div class="sec" style="margin:0 0 8px">📐 怎么用这本教材</div>
+        <div class="sec" style="margin:0 0 8px">怎么用这本教材</div>
         <div class="muted" style="line-height:1.8">
           <b style="color:var(--tx)">顺着读，别跳。</b>每节 5-10 分钟：先看「为什么学」和「学完的标志」，再读讲义，最后点「标记已学」。<br>
           每节末尾的<b style="color:var(--tx)">配套真题</b>去题库当面练一遍；<b style="color:var(--tx)">关联笔记</b>是想深挖时再点，不必每篇都读。
@@ -385,7 +385,7 @@
         <span class="tb-part-t">${esc(p.title)}</span>
         <span class="tb-pct">${pr.read}/${pr.total}</span>
       </div>
-      ${p.goal ? `<div class="tb-goal">🎯 ${esc(p.goal)}</div>` : ""}
+      ${p.goal ? `<div class="tb-goal">${esc(p.goal)}</div>` : ""}
       ${p.badge ? `<div class="tb-badge">${esc(p.badge)}</div>` : ""}
       <div class="meter" style="margin-top:11px"><i class="${pr.pct < 34 ? "bad" : pr.pct < 67 ? "warn" : "ok"}" style="width:${pr.pct}%"></i></div>
       <div class="tb-part-m">${chCount > 1 ? chCount + " 章 · " : ""}${pr.total} 节</div>
@@ -403,7 +403,7 @@
           <div style="flex:1;min-width:0">
             <div class="kicker">${esc(p.no)}</div>
             <h1>${esc(p.title)}</h1>
-            ${p.goal ? `<p>🎯 ${esc(p.goal)}</p>` : ""}
+            ${p.goal ? `<p>${esc(p.goal)}</p>` : ""}
             ${p.badge ? `<p class="tb-badge" style="margin-top:8px">${esc(p.badge)}</p>` : ""}
           </div>
           ${RING(pr.pct, "已学")}
@@ -459,35 +459,35 @@
         </div>
       </div>
 
-      ${s.from ? `<div class="tb-from">📖 出处 · ${esc(s.from)}</div>` : ""}
+      ${s.from ? `<div class="tb-from">出处 · ${esc(s.from)}</div>` : ""}
       ${s.why ? `<div class="tb-panel why"><b>为什么学这节</b><span>${esc(s.why)}</span></div>` : ""}
       ${s.learn ? `<div class="tb-panel learn"><b>学完的标志</b><span>${esc(s.learn)}</span></div>` : ""}
 
       <div class="card tb-body">${MD.render(s.body || "")}</div>
 
-      ${(s.keypoints || []).length ? `<div class="sec">🔑 必须记住的结论</div>
+      ${(s.keypoints || []).length ? `<div class="sec">必须记住的结论</div>
       <div class="card"><ul class="iv-take" style="margin:0">${s.keypoints.map((k) => `<li>${MD.inline(k)}</li>`).join("")}</ul></div>` : ""}
 
-      ${(s.pitfalls || []).length ? `<div class="sec">⚠️ 最容易错的地方</div>
+      ${(s.pitfalls || []).length ? `<div class="sec">最容易错的地方</div>
       <div class="card"><ul class="iv-take" style="margin:0">${s.pitfalls.map((k) => `<li>${MD.inline(k)}</li>`).join("")}</ul></div>` : ""}
 
-      ${(s.ev || []).length ? `<div class="sec">💬 访谈证据</div><div class="card">${s.ev.map(evHTML).join("")}</div>` : ""}
+      ${(s.ev || []).length ? `<div class="sec">访谈证据</div><div class="card">${s.ev.map(evHTML).join("")}</div>` : ""}
 
-      ${qs.length ? `<div class="sec">🎤 配套真题（去练一遍）</div>
+      ${qs.length ? `<div class="sec">配套真题（去练一遍）</div>
       <ul class="qlist">${qs.map((q) => `<li><button class="qitem" data-go="#/q/${q.id}">
         <div class="qt">${esc(q.q)}</div>
-        <div class="qm"><span class="tag ${q.freq === "high" ? "hot" : ""}">${q.freq === "high" ? "🔥 高频" : "题目"}</span><span class="tag">${esc((MOD[q.mod] || {}).name || q.mod)}</span><span class="tag">Lv${q.lv}</span></div>
+        <div class="qm"><span class="tag ${q.freq === "high" ? "hot" : ""}">${q.freq === "high" ? "高频" : "题目"}</span><span class="tag">${esc((MOD[q.mod] || {}).name || q.mod)}</span><span class="tag">Lv${q.lv}</span></div>
       </button></li>`).join("")}</ul>` : ""}
 
-      ${rels.length ? `<div class="sec">📖 想深挖就读这几篇</div>
+      ${rels.length ? `<div class="sec">想深挖就读这几篇</div>
       <div class="card"><div class="note-links">${rels.map(NOTE_BTN).join("")}</div></div>` : ""}
 
-      <div class="sec">✅ 学完了吗</div>
+      <div class="sec">学完了吗</div>
       <div class="card">
         ${st.note ? `<div class="practice" style="margin-bottom:12px">我的理解：${esc(st.note)}</div>` : ""}
         <div class="btn-row">
           <button class="btn ${st.read ? "ghost" : "ok"}" data-tbread="${esc(sid)}">${st.read ? "取消已学" : "✓ 标记已学"}</button>
-          <button class="btn ghost" data-tbnote="${esc(sid)}">✍️ 写一句我自己的话</button>
+          <button class="btn ghost" data-tbnote="${esc(sid)}">写一句我自己的话</button>
         </div>
         <div class="muted" style="margin-top:11px">讲不出来就不算学会。点右边那句，用你自己的话把这一节复述一遍。</div>
       </div>
@@ -502,7 +502,7 @@
   /* ================= 题库 ================= */
   let bankFilter = { role: "", mod: "" };
   let bankMediaFilter = { role: "", kw: "" };
-  const MEDIA_ROLE_SHORT = { "llm-algo": "🔬 算法", "agent-app": "🤖 应用/Agent", "llmops": "⚙️ LLMOps", "ai-pm": "📋 AI PM", "fde": "🛰️ FDE", "": "📎 其他" };
+  const MEDIA_ROLE_SHORT = { "llm-algo": "算法", "agent-app": "应用/Agent", "llmops": "LLMOps", "ai-pm": "AI PM", "fde": "FDE", "": "📎 其他" };
 
   function renderBank(roleArg, modArg) {
     const params = new URLSearchParams(location.hash.split("?")[1] || "");
@@ -514,12 +514,12 @@
     let list = BANK.questions.slice();
     if (bankFilter.role) list = list.filter((q) => q.role === bankFilter.role);
     if (bankFilter.mod) list = list.filter((q) => q.mod === bankFilter.mod);
-    const F = { high: "🔥 高频", mid: "◻ 常规", low: "· 长尾" };
+    const F = { high: "高频", mid: "◻ 常规", low: "· 长尾" };
 
     $("#view-bank").innerHTML = `
       <div class="seg">
-        <button class="on">📕 深度精讲 ${BANK.questions.length}</button>
-        <button data-go="#/bank?src=media">📰 媒体题库 ${MEDIA.meta.total}</button>
+        <button class="on">深度精讲 ${BANK.questions.length}</button>
+        <button data-go="#/bank?src=media">媒体题库 ${MEDIA.meta.total}</button>
       </div>
       <div class="hero">
         <div class="kicker">逐题深钻</div>
@@ -536,7 +536,7 @@
       </div>
       <div class="btn-row" style="margin-bottom:14px">
         <button class="btn primary" data-go="#/bank?mock=1">⏱ 模拟面试（5 题）</button>
-        <button class="btn" id="rand2">🎲 随机一题</button>
+        <button class="btn" id="rand2">随机一题</button>
       </div>
       <div class="muted" style="margin-bottom:10px">当前 ${list.length} 题</div>
       <ul class="qlist">${list.map((q) => {
@@ -549,7 +549,7 @@
             ${done ? `<span class="tag done">Lv${st.box} 已练</span>` : '<span class="tag">未练</span>'}
           </div></button></li>`;
       }).join("")}</ul>
-      ${!list.length ? '<div class="card empty"><i>🗂</i>这个筛选下还没有题目</div>' : ""}
+      ${!list.length ? '<div class="card empty"><i>☰</i>这个筛选下还没有题目</div>' : ""}
     `;
     $$("#view-bank .chip").forEach((c) => (c.onclick = () => {
       if (c.dataset.fr !== undefined) { bankFilter = { role: c.dataset.fr, mod: "" }; go("#/bank"); }
@@ -572,15 +572,15 @@
 
     $("#view-bank").innerHTML = `
       <div class="seg">
-        <button data-go="#/bank">📕 深度精讲 ${BANK.questions.length}</button>
-        <button class="on">📰 媒体题库 ${MEDIA.meta.total}</button>
+        <button data-go="#/bank">深度精讲 ${BANK.questions.length}</button>
+        <button class="on">媒体题库 ${MEDIA.meta.total}</button>
       </div>
       <div class="hero">
         <div class="kicker">广度覆盖</div>
         <h1>媒体题库</h1>
         <p>收集自 ${MEDIA.meta.sources.map((s) => s.label + " " + s.count).join(" · ")}。每题带来源链接、追问与参考答题框架。</p>
       </div>
-      <input class="search" id="mq-search" placeholder="🔍 搜题目 / 中文 / 模块（如 RAG、evals、decomposition）" value="${esc(bankMediaFilter.kw)}">
+      <input class="search" id="mq-search" placeholder="搜题目 / 中文 / 模块（如 RAG、evals、decomposition）" value="${esc(bankMediaFilter.kw)}">
       <div class="chips" style="margin-top:12px">
         <button class="chip ${bankMediaFilter.role === "" ? "on" : ""}" data-mr="">全部 ${all.length}</button>
         ${["llm-algo", "agent-app", "llmops", "ai-pm", "fde", ""].filter((r) => counts[r]).map((r) => `<button class="chip ${bankMediaFilter.role === r ? "on" : ""}" data-mr="${r}">${MEDIA_ROLE_SHORT[r] || r} ${counts[r]}</button>`).join("")}
@@ -597,7 +597,7 @@
             ${st && st.n ? `<span class="tag done">已练 Lv${st.box}</span>` : ""}
           </div></button></li>`;
       }).join("")}</ul>
-      ${!list.length ? '<div class="card empty"><i>🫙</i>没有匹配的题目</div>' : ""}
+      ${!list.length ? '<div class="card empty"><i>◌</i>没有匹配的题目</div>' : ""}
     `;
     const si = $("#mq-search");
     si.addEventListener("input", () => {
@@ -645,7 +645,7 @@
       <div class="crumb" data-go="#/bank">‹ 题库${inMock ? ` · 模拟面试 ${step}/${mock.ids.length}` : ""}</div>
       <div class="q-head">
         <div class="tag-row">
-          <span class="tag ${q.freq === "high" ? "hot" : q.freq === "mid" ? "mid" : ""}">${q.freq === "high" ? "🔥 高频" : q.freq === "mid" ? "◻ 常规" : "长尾"}</span>
+          <span class="tag ${q.freq === "high" ? "hot" : q.freq === "mid" ? "mid" : ""}">${q.freq === "high" ? "高频" : q.freq === "mid" ? "◻ 常规" : "长尾"}</span>
           <span class="tag ${q.lv >= 3 ? "lv3" : ""}">深度 ${"●".repeat(q.lv)}${"○".repeat(3 - q.lv)}</span>
           <span class="tag">${ROLE[q.role].icon} ${esc(ROLE[q.role].name)}</span>
           <span class="tag">${esc(MOD[q.mod].name)}</span>
@@ -670,12 +670,12 @@
         <div class="step">
           <div class="sh"><span class="idx">2</span>对照参考框架</div>
           <div class="sd">
-            <button class="btn primary block" id="reveal">👀 展开参考框架</button>
+            <button class="btn primary block" id="reveal">展开参考框架</button>
             <div id="frame-box" style="display:none;margin-top:14px">
               <div class="frameblk"><b>一句话结论（面试先说这句）</b><div class="claim-big">${MD.inline(q.frame.claim)}</div></div>
               <div class="frameblk"><b>为什么 · 分层展开</b><ol>${q.frame.why.map((w) => `<li>${MD.inline(w)}</li>`).join("")}</ol></div>
               <div class="frameblk"><b>取舍 / Trade-off</b><div style="font-size:14.4px;color:var(--tx2);line-height:1.72">${MD.inline(q.frame.tradeoff)}</div></div>
-              ${q.frame.practice ? `<div class="practice" style="margin-top:12px">💡 项目落点：${MD.inline(q.frame.practice)}</div>` : ""}
+              ${q.frame.practice ? `<div class="practice" style="margin-top:12px">项目落点：${MD.inline(q.frame.practice)}</div>` : ""}
               ${(q.frame.pitfalls || []).length ? `<div class="frameblk" style="margin-top:14px"><b>雷区 · 被点名会扣分</b><ul class="pitfall">${q.frame.pitfalls.map((p) => `<li>${MD.inline(p)}</li>`).join("")}</ul></div>` : ""}
             </div>
           </div>
@@ -710,12 +710,12 @@
           <div class="sd">
             <div class="muted" style="margin-bottom:11px">诚实打分。不会的会很快回来找你，会的会被拉长间隔。</div>
             <div class="btn-row">
-              <button class="btn bad" data-rate="no">😵 不会</button>
-              <button class="btn half" data-rate="half">😐 半会</button>
-              <button class="btn ok" data-rate="yes">😎 会了</button>
+              <button class="btn bad" data-rate="no">不会</button>
+              <button class="btn half" data-rate="half">半会</button>
+              <button class="btn ok" data-rate="yes">会了</button>
             </div>
             <div class="muted" style="margin-top:10px">下次复习：不会 → 6 小时后 · 半会 → ${INTERVALS[Math.max(1, st.box)]} 天后 · 会了 → ${INTERVALS[Math.min(5, st.box + 1)]} 天后</div>
-            <button class="btn block ghost" id="my-free-note" style="margin-top:11px">✍️ 写下我自己的理解（费曼）</button>
+            <button class="btn block ghost" id="my-free-note" style="margin-top:11px">写下我自己的理解（费曼）</button>
           </div>
         </div>
       </div>
@@ -741,7 +741,7 @@
     $("#reveal").onclick = () => {
       const fb = $("#frame-box"), show = fb.style.display === "none";
       fb.style.display = show ? "block" : "none";
-      $("#reveal").textContent = show ? "🙈 收起参考框架" : "👀 展开参考框架";
+      $("#reveal").textContent = show ? "收起参考框架" : "展开参考框架";
       if (show) { touchStreak(); save(); }
     };
 
@@ -794,11 +794,11 @@
         <div class="step"><div class="sh"><span class="idx">4</span>自评 → 排进复习</div>
           <div class="sd">
             <div class="btn-row">
-              <button class="btn bad" data-rate="no">😵 不会</button>
-              <button class="btn half" data-rate="half">😐 半会</button>
-              <button class="btn ok" data-rate="yes">😎 会了</button>
+              <button class="btn bad" data-rate="no">不会</button>
+              <button class="btn half" data-rate="half">半会</button>
+              <button class="btn ok" data-rate="yes">会了</button>
             </div>
-            <button class="btn block ghost" id="my-free-note" style="margin-top:11px">✍️ 写下我自己的理解</button>
+            <button class="btn block ghost" id="my-free-note" style="margin-top:11px">写下我自己的理解</button>
           </div></div>
       </div>
       <div class="card" style="margin-top:14px">
@@ -853,7 +853,7 @@
         </div>
       </div>
 
-      <input class="search" id="iv-search" placeholder="🔍 搜嘉宾 / 主题（如 Evals、FDE、MCP、Boris）" value="${esc(ivFilter.kw)}">
+      <input class="search" id="iv-search" placeholder="搜嘉宾 / 主题（如 Evals、FDE、MCP、Boris）" value="${esc(ivFilter.kw)}">
       <div class="chips" style="margin-top:12px">
         <button class="chip ${!ivFilter.tier ? "on" : ""}" data-t="">全部 ${all.length}</button>
         ${IVLIB.tiers.map((t) => `<button class="chip ${ivFilter.tier === t.id ? "on" : ""}" data-t="${t.id}">${t.icon} ${t.name.split(" · ")[0]} ${all.filter((i) => i.tier === t.id).length}</button>`).join("")}
@@ -866,7 +866,7 @@
         <div class="muted" style="margin:-4px 4px 12px">${esc(t.desc)}</div>
         ${sub.map(ivCard).join("")}`;
       }).join("")}
-      ${!list.length ? '<div class="card empty"><i>🔍</i>没有匹配的访谈</div>' : ""}
+      ${!list.length ? '<div class="card empty"><i></i>没有匹配的访谈</div>' : ""}
     `;
     const si = $("#iv-search");
     si.addEventListener("input", () => {
@@ -893,8 +893,8 @@
       ${(i.quotes || []).length ? `<div class="iv-quote"><div class="q-zh">「${esc(i.quotes[0].zh)}」</div>${i.quotes[0].en ? `<div class="q-en">“${esc(i.quotes[0].en)}”</div>` : ""}</div>` : ""}
       <div class="tag-row" style="margin-top:11px">
         <span class="tag ${st.c}">${esc(st.t)}</span>
-        ${IV_DEEP[i.id] ? '<span class="tag hot">🧠 AI 深度思考</span>' : ""}
-        ${i.note ? '<span class="tag done">📖 有完整笔记</span>' : ""}
+        ${IV_DEEP[i.id] ? '<span class="tag hot">AI 深度思考</span>' : ""}
+        ${i.note ? '<span class="tag done">有完整笔记</span>' : ""}
         ${(i.topics || []).slice(0, 3).map((t) => `<span class="tag">${esc(t)}</span>`).join("")}
       </div>
     </div>`;
@@ -910,18 +910,18 @@
       : "";
     const claims = d.claims || [];
     return `
-      <div class="sec">🧠 AI 深度思考</div>
+      <div class="sec">AI 深度思考</div>
       <div class="card dp">
         <div class="muted" style="margin-bottom:12px;line-height:1.7">下面这一层不是复述嘉宾说了什么，而是追问：<b style="color:var(--tx)">它为什么成立、边界在哪、谁不同意、对你意味着什么。</b></div>
         ${d.verdict ? `<div class="dp-verdict">${MD.inline(d.verdict)}</div>` : ""}
-        ${row("核心论断", "🎯", d.thesis)}
-        ${row("为什么成立", "🔗", d.reasoning)}
-        ${row("边界在哪", "⚠️", d.boundary)}
+        ${row("核心论断", "", d.thesis)}
+        ${row("为什么成立", "→", d.reasoning)}
+        ${row("边界在哪", "", d.boundary)}
         ${row("反方观点", "↔️", d.counter)}
-        ${row("对你的含义", "🧭", d.meaning)}
-        ${row("可检验的动作", "✅", d.action)}
+        ${row("对你的含义", "→", d.meaning)}
+        ${row("可检验的动作", "", d.action)}
       </div>
-      ${claims.length ? `<div class="sec">🔍 论断级拆解 <span class="n">${claims.length}</span></div>
+      ${claims.length ? `<div class="sec">论断级拆解 <span class="n">${claims.length}</span></div>
       ${claims.map((c, n) => `<div class="card dp-claim">
         <div class="dp-claim-top">
           <span class="dp-no">${n + 1}</span>
@@ -959,34 +959,34 @@
       </div>
 
       <div class="card">
-        <div class="sec" style="margin:0 0 10px">📺 这期讲什么</div>
+        <div class="sec" style="margin:0 0 10px">这期讲什么</div>
         <div style="font-size:15.4px;font-weight:650;line-height:1.66">${esc(i.title)}</div>
         ${(i.takeaways || []).length ? `<ul class="iv-take" style="margin-top:12px">${i.takeaways.map((t) => `<li>${esc(t)}</li>`).join("")}</ul>` : ""}
         <div class="btn-row" style="margin-top:14px">
           ${i.url ? `<a class="btn primary" href="${esc(i.url)}" target="_blank" rel="noopener">▶ 去 YouTube / 原页看</a>` : '<span class="btn ghost" style="pointer-events:none;opacity:.55">链接待补</span>'}
-          ${i.extra && i.extra.url ? `<a class="btn" href="${esc(i.extra.url)}" target="_blank" rel="noopener">📄 ${esc(i.extra.title)}</a>` : ""}
-          ${i.sister && i.sister.url ? `<a class="btn ghost" href="${esc(i.sister.url)}" target="_blank" rel="noopener">🎬 姊妹期</a>` : ""}
+          ${i.extra && i.extra.url ? `<a class="btn" href="${esc(i.extra.url)}" target="_blank" rel="noopener">${esc(i.extra.title)}</a>` : ""}
+          ${i.sister && i.sister.url ? `<a class="btn ghost" href="${esc(i.sister.url)}" target="_blank" rel="noopener">姊妹期</a>` : ""}
         </div>
       </div>
 
-      ${(i.keyPoints || []).length ? `<div class="sec">🔑 核心要点</div>
+      ${(i.keyPoints || []).length ? `<div class="sec">核心要点</div>
       <div class="card"><ul class="iv-take" style="margin:0">${i.keyPoints.map((k) => `<li>${esc(k)}</li>`).join("")}</ul></div>` : ""}
 
       ${ivDeepHTML(i.id)}
 
-      ${(i.quotes || []).length ? `<div class="sec">💬 可直接引用的金句</div>
+      ${(i.quotes || []).length ? `<div class="sec">可直接引用的金句</div>
       <div class="card">${i.quotes.map((q) => `<div class="iv-quote" style="margin-top:10px"><div class="q-zh">「${esc(q.zh)}」</div>${q.en ? `<div class="q-en">“${esc(q.en)}”</div>` : ""}</div>`).join("")}</div>` : ""}
 
-      ${i.note && NOTE_BY_PATH[i.note] ? `<div class="sec">📖 深读</div>
+      ${i.note && NOTE_BY_PATH[i.note] ? `<div class="sec">深读</div>
       <div class="card">
         <div class="muted" style="margin-bottom:11px">这期已经加工成结构化笔记（含要点表、框架、行动项）：</div>
         <button class="btn primary block" data-note="${esc(i.note)}">打开完整笔记 →</button>
-      </div>` : `<div class="card"><div class="empty" style="padding:14px 4px"><i>📝</i>这期还没加工成笔记。<br>先去原页看，回来可以让我补。</div></div>`}
+      </div>` : `<div class="card"><div class="empty" style="padding:14px 4px"><i>✎</i>这期还没加工成笔记。<br>先去原页看，回来可以让我补。</div></div>`}
 
-      ${rq.length ? `<div class="sec">🎤 相关的面试题</div>
+      ${rq.length ? `<div class="sec">相关的面试题</div>
       <ul class="qlist">${rq.map((q) => `<li><button class="qitem" data-go="#/q/${q.id}">
         <div class="qt">${esc(q.q)}</div>
-        <div class="qm"><span class="tag ${q.freq === "high" ? "hot" : ""}">${q.freq === "high" ? "🔥 高频" : "题目"}</span><span class="tag">${esc(MOD[q.mod].name)}</span></div>
+        <div class="qm"><span class="tag ${q.freq === "high" ? "hot" : ""}">${q.freq === "high" ? "高频" : "题目"}</span><span class="tag">${esc(MOD[q.mod].name)}</span></div>
       </button></li>`).join("")}</ul>` : ""}
     `;
   }
@@ -1003,7 +1003,7 @@
         <h1>笔记库</h1>
         <p>技术线 ${IDX.meta.byVault.A} 篇 + 访谈线 ${IDX.meta.byVault.B} 篇，共 <b>${NOTES.length}</b> 篇。双链可点，读完随手标记。</p>
       </div>
-      <input class="search" id="note-search" placeholder="🔍 搜标题 / 路径（如 RAG、MCP、Dario）" value="${esc(noteSearch)}">
+      <input class="search" id="note-search" placeholder="搜标题 / 路径（如 RAG、MCP、Dario）" value="${esc(noteSearch)}">
       <div class="chips" style="margin-top:12px">
         <button class="chip ${!noteSearch ? "on" : ""}" data-q="">全部 ${NOTES.length}</button>
         ${dirs.map((d) => `<button class="chip" data-q="${esc(d)}">${esc(dirLabel(d))} ${NOTES.filter((n) => n.d === d).length}</button>`).join("")}
@@ -1013,7 +1013,7 @@
         <span class="np">${esc(n.p)} · ${n.m} 分钟</span>
       </button></li>`).join("")}</ul>
       ${list.length > 300 ? '<div class="muted center" style="margin-top:12px">只显示前 300 条，用搜索缩小范围</div>' : ""}
-      ${!list.length ? '<div class="card empty"><i>🗂</i>没有匹配的笔记</div>' : ""}
+      ${!list.length ? '<div class="card empty"><i>☰</i>没有匹配的笔记</div>' : ""}
     `;
     const si = $("#note-search");
     si.addEventListener("input", () => {
@@ -1045,9 +1045,9 @@
       </div>
       <div class="article">${MD.render(body)}</div>
       ${iv ? `<div class="sec">▶ 这场访谈</div><div class="card"><button class="btn primary block" data-go="#/ivd/${iv.id}">查看访谈卡片 · ${esc(iv.guest)} →</button></div>` : ""}
-      ${relatedQ.length ? `<div class="sec">🎤 相关面试题 ${relatedQ.length}</div>
-      <ul class="qlist">${relatedQ.map((q) => `<li><button class="qitem" data-go="#/q/${q.id}"><div class="qt">${esc(q.q)}</div><div class="qm"><span class="tag ${q.freq === "high" ? "hot" : ""}">${q.freq === "high" ? "🔥 高频" : "题目"}</span><span class="tag">${esc(MOD[q.mod].name)}</span></div></button></li>`).join("")}</ul>` : ""}
-      ${back.length ? `<div class="sec">🔗 反向链接 ${back.length}</div><div class="note-links">${back.map((b) => `<button class="btn sm" data-note="${esc(b.p)}">${esc(shortName(b.p))}</button>`).join("")}</div>` : ""}
+      ${relatedQ.length ? `<div class="sec">相关面试题 ${relatedQ.length}</div>
+      <ul class="qlist">${relatedQ.map((q) => `<li><button class="qitem" data-go="#/q/${q.id}"><div class="qt">${esc(q.q)}</div><div class="qm"><span class="tag ${q.freq === "high" ? "hot" : ""}">${q.freq === "high" ? "高频" : "题目"}</span><span class="tag">${esc(MOD[q.mod].name)}</span></div></button></li>`).join("")}</ul>` : ""}
+      ${back.length ? `<div class="sec">反向链接 ${back.length}</div><div class="note-links">${back.map((b) => `<button class="btn sm" data-note="${esc(b.p)}">${esc(shortName(b.p))}</button>`).join("")}</div>` : ""}
       <div class="btn-row" style="margin-top:16px">
         <button class="btn" id="jump-top">↑ 回到顶部</button>
         <button class="btn ghost" data-go="#/notes">返回列表</button>
@@ -1078,7 +1078,7 @@
           ${RING(clamp((S.streak.days || 0) * 5, 0, 100), "连击")}
         </div>
         <div class="hero-stats">
-          <div class="hstat"><b>${S.streak.days || 0}</b><span>🔥 连续天数</span></div>
+          <div class="hstat"><b>${S.streak.days || 0}</b><span>连续天数</span></div>
           <div class="hstat"><b>${answers}</b><span>累计自评次数</span></div>
           <div class="hstat"><b>${due}</b><span>今日到期</span></div>
         </div>
@@ -1098,41 +1098,41 @@
         ${due ? `<button class="btn primary block" style="margin-top:12px" data-go="#/q/${dueList()[0].id}">开始复习 →</button>` : '<div class="muted" style="margin-top:10px">暂无到期。做过的题会按 6 小时 / 1 / 3 / 7 / 15 / 30 天自动回来。</div>'}
       </div>
 
-      <div class="sec">📉 模块掌握度</div>
+      <div class="sec">模块掌握度</div>
       <div class="card">
         ${mods.length ? mods.sort((a, b) => a.s.pct - b.s.pct).map((x) => `<div class="radar-row">
           <span class="rn">${x.m.icon} ${esc(x.m.name)}</span>
           <div class="meter"><i class="${x.s.pct < 34 ? "bad" : x.s.pct < 67 ? "warn" : "ok"}" style="width:${x.s.pct}%"></i></div>
           <span class="rv">${x.s.pct}%</span></div>`).join("")
-        : '<div class="empty" style="padding:14px 4px"><i>📡</i>还没有数据。去题库练几道，这里会长出你的弱项雷达。</div>'}
+        : '<div class="empty" style="padding:14px 4px"><i>◌</i>还没有数据。去题库练几道，这里会长出你的弱项雷达。</div>'}
       </div>
 
-      <div class="sec">✍️ 我写的理解 ${notesList.length}</div>
+      <div class="sec">我写的理解 ${notesList.length}</div>
       <div class="card">
         ${notesList.length ? notesList.map((k) => {
           let label = k;
           if (k.startsWith("q_")) label = QBYID[k.slice(2)] ? QBYID[k.slice(2)].q : k;
           else if (k.startsWith("tb_")) label = secTitle(k.slice(3)) + "（" + k.slice(3) + "）";
           return `<div class="kv" style="display:block"><div style="color:var(--tx3);font-size:12.4px">${esc(String(label).slice(0, 70))}</div><div style="margin-top:4px">${esc(S.text[k])}</div></div>`;
-        }).join("") : '<div class="empty" style="padding:14px 4px"><i>✍️</i>还没有。教材每节底部、做题时都能点「写一句我自己的话」，用自己的话讲一遍——这就是费曼检验。</div>'}
+        }).join("") : '<div class="empty" style="padding:14px 4px"><i></i>还没有。教材每节底部、做题时都能点「写一句我自己的话」，用自己的话讲一遍——这就是费曼检验。</div>'}
       </div>
 
-      <div class="sec">⚙️ 设置与存档</div>
+      <div class="sec">设置与存档</div>
       <div class="card">
         <div class="btn-row">
-          <button class="btn" id="theme-btn">${S.theme === "light" ? "🌙 切到深色" : "☀️ 切到浅色"}</button>
-          <button class="btn" id="exp">📤 导出存档</button>
-          <button class="btn" id="imp">📥 导入存档</button>
+          <button class="btn" id="theme-btn">${S.theme === "light" ? "切到深色" : "切到浅色"}</button>
+          <button class="btn" id="exp">导出存档</button>
+          <button class="btn" id="imp">导入存档</button>
         </div>
-        <button class="btn ghost block" id="reset" style="margin-top:9px">🧹 清空进度</button>
+        <button class="btn ghost block" id="reset" style="margin-top:9px">清空进度</button>
         <div class="muted" style="margin-top:11px">共 ${ALL_SECS.length} 节教材 + ${BANK.questions.length} 精讲题 + ${MEDIA.meta.total} 媒体题 / ${NOTES.length} 篇笔记 / ${IVLIB.items.length} 场访谈（其中 ${Object.keys(IV_DEEP).length} 场带 AI 深度思考）。存档为 JSON，可复制到手机浏览器粘贴导入。</div>
       </div>
 
-      <div class="sec">🔗 其它学习站</div>
+      <div class="sec">其它学习站</div>
       <div class="rows">
-        <a class="row" href="../study/index.html"><span class="row-i">📖</span><span class="row-b"><span class="row-t">学习站</span><span class="row-m">全库笔记网页阅读，双链可点、可搜索</span></span><span class="row-x">›</span></a>
-        <a class="row" href="../practice/index.html"><span class="row-i">🏝️</span><span class="row-b"><span class="row-t">AI 冒险岛</span><span class="row-m">Python 练习场：浏览器里跑真实 Python</span></span><span class="row-x">›</span></a>
-        <a class="row" href="../feynman/index.html"><span class="row-i">🎓</span><span class="row-b"><span class="row-t">费曼学检场</span><span class="row-m">盲讲 → 找差 → 简讲 → 出关，自动排复习</span></span><span class="row-x">›</span></a>
+        <a class="row" href="../study/index.html"><span class="row-i"></span><span class="row-b"><span class="row-t">学习站</span><span class="row-m">全库笔记网页阅读，双链可点、可搜索</span></span><span class="row-x">›</span></a>
+        <a class="row" href="../practice/index.html"><span class="row-i">◇</span><span class="row-b"><span class="row-t">AI 冒险岛</span><span class="row-m">Python 练习场：浏览器里跑真实 Python</span></span><span class="row-x">›</span></a>
+        <a class="row" href="../feynman/index.html"><span class="row-i">◆</span><span class="row-b"><span class="row-t">费曼学检场</span><span class="row-m">盲讲 → 找差 → 简讲 → 出关，自动排复习</span></span><span class="row-x">›</span></a>
       </div>
 
       <div class="sec">ℹ️ 数据说明</div>

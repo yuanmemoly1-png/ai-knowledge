@@ -16,6 +16,9 @@ Thumbs.db
 Desktop.ini
 desktop.ini
 
+# 视觉核对截图（tools/shot.mjs 产物，不入库）
+shots/
+
 # 系统
 $RECYCLE.BIN/
 .DS_Store
