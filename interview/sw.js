@@ -1,7 +1,8 @@
 // Service Worker：网络优先 + 离线回落
 // v7：深色主题精修（分层底色 / 收敛用色 / 清 emoji / 提对比度与触控区）
 // v8：补齐缺口节（Linux / 测试 / Docker / LLMOps / Computer Use）
-const VERSION = "v8-2026-09-17";
+// v9：补齐建议级缺口（Git 协作 / LoRA 实操 / Evals 实操 / 简历包装）
+const VERSION = "v9-2026-09-17";
 const SHELL = [
   "./",
   "./index.html",
@@ -25,6 +26,8 @@ const SHELL = [
   "./data/tb-p7d.js",
   "./data/tb-gapa.js",
   "./data/tb-gapb.js",
+  "./data/tb-gap2a.js",
+  "./data/tb-gap2b.js",
   "./data/quotes.js",
   "./data/questions.js",
   "./data/media-bank.js",
