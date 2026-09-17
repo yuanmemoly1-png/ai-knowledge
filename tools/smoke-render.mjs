@@ -118,6 +118,10 @@ const ROUTES = [
   ["教材·Evals实操", "#/book/C8/8.12", "view-book"],
   ["教材·LoRA实操", "#/book/C9/9.3", "view-book"],
   ["教材·简历包装", "#/book/C17/17.6", "view-book"],
+  ["必背代码", "#/code", "view-code"],
+  ["必背代码·AI循环", "#/code/ai-react", "view-code"],
+  ["必背代码·Python", "#/code/py-sql", "view-code"],
+  ["必背代码·算法条", "#/code/algo-attention", "view-code"],
   ["教材·旧链接兼容", "#/tree", "view-book"],
   ["题库·精讲", "#/bank", "view-bank"],
   ["题库·媒体", "#/bank?src=media", "view-bank"],
@@ -223,6 +227,28 @@ const results = [];
         if (!h.includes("AI 深度思考")) { bad(`访谈详情未渲染深度思考: ${id}`); dbad++; }
       }
       if (!dbad) ok(`${deepIds.length} 场访谈详情页均渲染出「AI 深度思考」区块`);
+    }
+
+    // 必背代码：每条详情页都能渲染出代码块
+    const CBANK = sandbox.CODE_BANK, CITEMS = sandbox.CODE_ITEMS;
+    if (!CBANK || !CITEMS) bad("CODE_BANK / CODE_ITEMS 未挂载");
+    else {
+      const cIds = Object.keys(CITEMS);
+      let cbad = 0, withCode = 0;
+      for (const id of cIds) {
+        sandbox.location.hash = "#/code/" + id;
+        for (const fn of hashFns) await fn();
+        const h = elCache["#view-code"]._html || "";
+        if (h.length < 300) { bad(`代码详情渲染失败: ${id}`); cbad++; }
+        if (h.indexOf('<pre class="code"') >= 0) withCode++;
+      }
+      if (!cbad) ok(`${cIds.length} 条必背代码详情页渲染正常（${withCode} 条渲染出代码块）`);
+      sandbox.location.hash = "#/code";
+      for (const fn of hashFns) await fn();
+      const listHtml = elCache["#view-code"]._html || "";
+      const missG = (CBANK.groups || []).filter((g) => listHtml.indexOf(g.name) < 0);
+      if (missG.length) bad(`代码列表缺分组: ${missG.map((g) => g.id).join(", ")}`);
+      else ok(`代码列表列出全部 ${(CBANK.groups || []).length} 组`);
     }
   }
 

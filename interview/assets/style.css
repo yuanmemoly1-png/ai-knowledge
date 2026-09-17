@@ -716,6 +716,36 @@ b, strong { font-weight: 650; }
 .why { color: var(--tx2); }
 .learn { color: var(--tx2); }
 
+/* ================= 必背代码 ================= */
+.code-wrap {
+  border: 1px solid var(--line); border-radius: var(--r);
+  background: var(--bg-soft); overflow: hidden;
+}
+.code-bar {
+  display: flex; align-items: center; gap: var(--sp2);
+  padding: 9px var(--sp3) 9px var(--sp4);
+  border-bottom: 1px solid var(--line); background: var(--s1);
+}
+.code-lang {
+  font-family: var(--mono); font-size: var(--fs-xs);
+  color: var(--tx3); letter-spacing: .02em;
+}
+.code-bar .btn.sm { padding: 8px 10px; }
+pre.code { margin: 0; padding: var(--sp4); overflow-x: auto; background: none; }
+pre.code code {
+  font-family: var(--mono); font-size: 12.8px; line-height: 1.78;
+  color: var(--tx2); white-space: pre;
+}
+.code-mask {
+  border: 1px dashed var(--line-2); border-radius: var(--r);
+  padding: var(--sp5) var(--sp4); text-align: center; background: var(--bg-soft);
+}
+.code-mask-h {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: var(--fs-sm); font-weight: 650; color: var(--tx2);
+  margin-bottom: var(--sp2);
+}
+
 /* ================= 响应式 ================= */
 @media (max-width: 400px) {
   :root { --fs-display: 24px; --maxw: 100%; }

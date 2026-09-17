@@ -10,7 +10,7 @@
   const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
   const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const DAY = 864e5;
-  const APP_VERSION = "v7 · 2026-09-17（设计系统 v4）";
+  const APP_VERSION = "v8 · 2026-09-17（设计 v4 · 含必背代码）";
 
   /* ---------------- 图标系统：内联 SVG（24 网格 / 1.6 线宽 / 圆头圆角） ----------------
      不用 emoji、不用文字字形：字形在不同设备上字重与基线都不一致，一眼就是占位符。
@@ -37,6 +37,8 @@
     warn: '<path d="M12 4.3 21 19.7H3L12 4.3Z"/><path d="M12 10v3.6"/><circle cx="12" cy="16.6" r="0.95" fill="currentColor" stroke="none"/>',
     shield: '<path d="M12 3.3 4.9 6v6.1c0 4 3 7.4 7.1 8.6 4.1-1.2 7.1-4.6 7.1-8.6V6L12 3.3Z"/><path d="M9.3 12.2 11.4 14.3 15 10.7"/>',
     chart: '<path d="M4 20h16"/><path d="M7.3 20V12M12 20V5.6M16.7 20v-5.6"/>',
+    code: '<path d="M9.4 6.4 3.9 12l5.5 5.6M14.6 6.4 20.1 12l-5.5 5.6"/>',
+    copy: '<rect x="8.6" y="8.6" width="12" height="12" rx="2.4"/><path d="M15.4 5.4H5.9a2.4 2.4 0 0 0-2.4 2.4v9.5"/>',
   };
   function ICON(name, size) {
     const d = ICONS[name] || ICONS.grid;
@@ -58,7 +60,7 @@
 
   /* ---------------- 状态 ---------------- */
   const KEY = "ai-interview-deep-v1";
-  const BLANK = () => ({ v: 1, q: {}, nodes: {}, tb: {}, seen: {}, text: {}, streak: { last: "", days: 0 }, theme: "dark" });
+  const BLANK = () => ({ v: 1, q: {}, nodes: {}, tb: {}, code: {}, seen: {}, text: {}, streak: { last: "", days: 0 }, theme: "dark" });
   let S = BLANK();
 
   function load() {
@@ -101,6 +103,17 @@
   const BOOK = window.TEXTBOOK || { title: "教材", parts: [] };
   const TB = window.TB_SECTIONS || {};
   const IV_DEEP = window.IV_DEEP || {};
+  const CBANK = window.CODE_BANK || { groups: [], levels: [], order: [] };
+  const CITEMS = window.CODE_ITEMS || {};
+
+  /* ---- 必背代码索引：按目录顺序，只保留正文存在的 ---- */
+  const CODES = (CBANK.order || []).filter((id) => CITEMS[id]).map((id) => CITEMS[id]);
+  const CODE_BY_ID = {};
+  CODES.forEach((c) => (CODE_BY_ID[c.id] = c));
+  const CGROUP = {};
+  (CBANK.groups || []).forEach((g) => (CGROUP[g.id] = g));
+  const CLEVEL = {};
+  (CBANK.levels || []).forEach((l) => (CLEVEL[l.id] = l));
 
   /* ---- 教材索引：节 id -> { part, chapter, idx } ---- */
   const SEC_POS = {};
@@ -179,6 +192,29 @@
     touchStreak(); save();
   }
   const dueList = () => BANK.questions.filter((q) => { const st = S.q[q.id]; return st && st.next && st.next <= Date.now(); });
+
+  /* ---------------- 必背代码：同一套间隔重复，独立存档桶 ----------------
+     「背过」的判定比题目严：box ≥ 2 才算真会默（会写 → 复现一次 → 再复现一次） */
+  function cState(id) {
+    if (!S.code[id]) S.code[id] = { box: 0, last: 0, next: 0, n: 0 };
+    return S.code[id];
+  }
+  function cRate(id, kind) {
+    const st = cState(id);
+    st.n++; st.last = Date.now();
+    if (kind === "no") st.box = 0;
+    else if (kind === "half") st.box = Math.max(1, st.box);
+    else st.box = Math.min(5, st.box + 1);
+    st.next = Date.now() + INTERVALS[st.box] * DAY;
+    touchStreak(); save();
+  }
+  const dueCodeList = () => CODES.filter((c) => { const st = S.code[c.id]; return st && st.next && st.next <= Date.now(); });
+  function codeProgress() {
+    const total = CODES.length;
+    const done = CODES.filter((c) => { const st = S.code[c.id]; return st && st.box >= 2; }).length;
+    const touched = CODES.filter((c) => S.code[c.id] && S.code[c.id].n > 0).length;
+    return { total, done, touched, pct: total ? Math.round((done / total) * 100) : 0 };
+  }
   function masteryOf(modId) {
     const qs = BANK.questions.filter((q) => q.mod === modId);
     if (!qs.length) return { pct: 0, done: 0, total: 0 };
@@ -231,12 +267,13 @@
   const TABS = [
     { id: "today", icon: "today", label: "今日" },
     { id: "book", icon: "book", label: "教材" },
+    { id: "code", icon: "code", label: "背码" },
     { id: "bank", icon: "bank", label: "题库" },
     { id: "iv", icon: "mic", label: "访谈" },
     { id: "notes", icon: "notes", label: "笔记" },
     { id: "me", icon: "me", label: "我的" },
   ];
-  const MAP = { today: "today", book: "book", tree: "book", bank: "bank", iv: "iv", notes: "notes", me: "me", q: "bank", mq: "bank", note: "notes", ivd: "iv", tb: "book" };
+  const MAP = { today: "today", book: "book", tree: "book", code: "code", bank: "bank", iv: "iv", notes: "notes", me: "me", q: "bank", mq: "bank", note: "notes", ivd: "iv", tb: "book" };
 
   const go = (h) => (location.hash = h);
   function parse() {
@@ -259,6 +296,7 @@
     else if (seg === "tb") renderBook(rest[0], rest[1]);
     else if (tab === "today") renderToday();
     else if (tab === "book") renderBook(rest[0], rest[1]);
+    else if (tab === "code") renderCode(rest[0]);
     else if (tab === "bank") renderBank(rest[0], rest[1]);
     else if (tab === "iv") renderInterviews();
     else if (tab === "notes") renderNotes();
@@ -305,6 +343,7 @@
   function renderToday() {
     const tp = bookProgress(), bp = bankProgress();
     const due = dueList();
+    const codeDue = dueCodeList();
     const todo = nextSections(3);
     const d = new Date();
     const week = "日一二三四五六"[d.getDay()];
@@ -364,6 +403,17 @@
           <div class="meter"><i class="${x.s.pct < 34 ? "bad" : x.s.pct < 67 ? "warn" : "ok"}" style="width:${x.s.pct}%"></i></div>
           <span class="rv">${x.s.pct}%</span></div>`).join("")}
         <button class="btn block sm" style="margin-top:12px" data-go="#/bank/${""}/${mods[0].m.id}">去练 ${esc(mods[0].m.name)} →</button>
+      </div>` : ""}
+
+      ${codeDue.length ? `<div class="sec">该默写的代码 <span class="n">${codeDue.length}</span></div>
+      <div class="rows">${codeDue.slice(0, 3).map((c) => `
+        <button class="row" data-go="#/code/${c.id}">
+          <span class="row-i">${ICON("code", 17)}</span>
+          <span class="row-b"><span class="row-t">${esc(c.t)}</span>
+          <span class="row-m"><span class="tag due">该默写了</span><span class="tag">${esc((CLEVEL[c.level] || {}).name || c.level)}</span></span></span>
+          <span class="row-x">›</span>
+        </button>`).join("")}
+        ${codeDue.length > 3 ? `<button class="btn ghost block sm" data-go="#/code">去背码看全部 ${codeDue.length} 条 →</button>` : ""}
       </div>` : ""}
 
       <div class="sec">今日金句</div>
@@ -530,6 +580,193 @@
         ${next ? `<button class="btn sm" data-go="#/book/${next.part.id}/${next.id}">${esc(next.id)} ${esc(secTitle(next.id))} ›</button>` : ""}
       </div>
     `;
+  }
+
+  /* ================= 必背代码 ================= */
+  let codeFilter = { group: "", level: "", kw: "" };
+  const CODE_MASK = {}; // 每条是否处于「遮住默写」状态（仅本次会话，不入存档）
+  const codeLines = (c) => String(c || "").split("\n").length;
+
+  function renderCode(itemId) {
+    if (itemId) return renderCodeItem(itemId);
+
+    const cp = codeProgress();
+    const due = dueCodeList();
+    let list = CODES.slice();
+    if (codeFilter.group) list = list.filter((c) => c.group === codeFilter.group);
+    if (codeFilter.level) list = list.filter((c) => c.level === codeFilter.level);
+    if (codeFilter.kw) {
+      const kw = codeFilter.kw.toLowerCase();
+      list = list.filter((c) => [c.t, c.scene, c.code, (c.keys || []).join(" ")].join(" ").toLowerCase().includes(kw));
+    }
+    const byGroup = {};
+    list.forEach((c) => (byGroup[c.group] = byGroup[c.group] || []).push(c));
+
+    $("#view-code").innerHTML = `
+      <div class="hero">
+        <div class="hero-top">
+          <div style="flex:1;min-width:0">
+            <div class="kicker">面试里唯一能提前背死的东西</div>
+            <h1>${esc(CBANK.title)}</h1>
+            <p>${esc(CBANK.subtitle)}。<br>共 ${CODES.length} 条，每条刻意压在 10-25 行——长代码背不下来，等于没背。</p>
+          </div>
+          ${RING(cp.pct, "已背")}
+        </div>
+        <div class="hero-stats">
+          <div class="hstat"><b>${cp.done}<span style="font-size:13px;color:var(--tx3)">/${cp.total}</span></b><span>背下来</span></div>
+          <div class="hstat"><b>${cp.touched}</b><span>已练过</span></div>
+          <div class="hstat"><b>${due.length}</b><span>今日该默写</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="sec" style="margin:0 0 8px">怎么背</div>
+        <div class="muted" style="line-height:1.8">
+          打开一条 → 点「遮住，我要默写」→ 凭记忆在框里写 → 点「对照答案」→ 自评。<br>
+          <b style="color:var(--tx)">连续两次「能默出来」才算背下来。</b>先背「必背」档；加分档与算法岗按你的目标岗挑。
+        </div>
+      </div>
+
+      ${due.length ? `<div class="sec">今日该默写 <span class="n">${due.length}</span></div>
+      <div class="rows">${due.slice(0, 3).map((c) => `
+        <button class="row" data-go="#/code/${c.id}">
+          <span class="row-i">${ICON("code", 17)}</span>
+          <span class="row-b"><span class="row-t">${esc(c.t)}</span>
+          <span class="row-m"><span class="tag due">该复习了</span><span class="tag">${esc((CLEVEL[c.level] || {}).name || c.level)}</span></span></span>
+          <span class="row-x">›</span>
+        </button>`).join("")}</div>` : ""}
+
+      <input class="search" id="code-search" placeholder="搜代码 / 场景（如 attention、退避、余弦）" value="${esc(codeFilter.kw)}">
+      <div class="chips" style="margin-top:12px">
+        <button class="chip ${!codeFilter.group ? "on" : ""}" data-cg="">全部 ${CODES.length}</button>
+        ${(CBANK.groups || []).map((g) => `<button class="chip ${codeFilter.group === g.id ? "on" : ""}" data-cg="${g.id}">${esc(g.name)} ${CODES.filter((c) => c.group === g.id).length}</button>`).join("")}
+      </div>
+      <div class="chips">
+        <button class="chip ${!codeFilter.level ? "on" : ""}" data-cl="">全部等级</button>
+        ${(CBANK.levels || []).map((l) => `<button class="chip ${codeFilter.level === l.id ? "on" : ""}" data-cl="${l.id}">${esc(l.name)}（${CODES.filter((c) => c.level === l.id).length}）</button>`).join("")}
+      </div>
+
+      ${(CBANK.groups || []).filter((g) => byGroup[g.id]).map((g) => `
+        <div class="sec">${esc(g.name)} <span class="n">${byGroup[g.id].length}</span></div>
+        <div class="muted" style="margin:-4px 0 10px">${esc(g.desc)}</div>
+        <div class="rows">${byGroup[g.id].map(codeRow).join("")}</div>
+      `).join("")}
+      ${!list.length ? `<div class="card empty"><i>${ICON("search", 26)}</i>没有匹配的代码</div>` : ""}
+    `;
+    const si = $("#code-search");
+    if (si) si.addEventListener("input", () => {
+      codeFilter.kw = si.value;
+      clearTimeout(si._t);
+      si._t = setTimeout(() => { renderCode(); const el = $("#code-search"); el.focus(); el.setSelectionRange(el.value.length, el.value.length); }, 240);
+    });
+    $$("#view-code .chip").forEach((el) => (el.onclick = () => {
+      if (el.dataset.cg !== undefined) codeFilter.group = el.dataset.cg;
+      if (el.dataset.cl !== undefined) codeFilter.level = el.dataset.cl;
+      renderCode();
+    }));
+  }
+
+  function codeRow(c) {
+    const st = S.code[c.id] || {};
+    const lv = CLEVEL[c.level] || {};
+    const boxTag = st.n ? `<span class="tag ${st.box >= 2 ? "done" : "mid"}">Lv${st.box || 0}</span>` : "";
+    const lvCls = c.level === "must" ? "hot" : c.level === "algo" ? "lv3" : "";
+    return `<button class="row" data-go="#/code/${c.id}">
+      <span class="row-i">${ICON("code", 17)}</span>
+      <span class="row-b">
+        <span class="row-t">${esc(c.t)}</span>
+        <span class="row-m"><span class="tag ${lvCls}">${esc(lv.name || c.level)}</span>${boxTag}<span class="tag">${codeLines(c.code)} 行</span></span>
+      </span><span class="row-x">›</span>
+    </button>`;
+  }
+
+  function renderCodeItem(id) {
+    const c = CODE_BY_ID[id];
+    if (!c) { toast("没有这条代码"); go("#/code"); return; }
+    const st = S.code[id] || {};
+    const masked = !!CODE_MASK[id];
+    const lv = CLEVEL[c.level] || {};
+    const grp = CGROUP[c.group] || {};
+    const idx = CODES.findIndex((x) => x.id === id);
+    const prev = idx > 0 ? CODES[idx - 1] : null;
+    const next = idx >= 0 && idx < CODES.length - 1 ? CODES[idx + 1] : null;
+    const qs = (c.qs || []).map((q) => QBYID[q]).filter(Boolean);
+    const rels = (c.rel || []).filter((p) => NOTE_BY_PATH[p]);
+    const tbSecs = (c.tb || []).map((sid) => ({ sid, s: TB[sid], pos: SEC_POS[sid] })).filter((x) => x.s);
+
+    $("#view-code").innerHTML = `
+      <div class="crumb" data-go="#/code">‹ 必背代码</div>
+      <div class="hero" style="padding-top:0">
+        <div class="kicker">${esc(grp.name || "")} · ${esc(lv.name || "")}${lv.desc ? " · " + esc(lv.desc) : ""}</div>
+        <h1 style="font-size:21px">${esc(c.t)}</h1>
+      </div>
+
+      <div class="tb-panel why"><b>什么时候会写它</b><span>${esc(c.scene)}</span></div>
+
+      ${masked ? `
+        <div class="code-mask">
+          <div class="code-mask-h">${ICON("pen", 16)} 已遮住 —— 现在凭记忆写</div>
+          <div class="muted">共 ${codeLines(c.code)} 行。默不出来就先写结构、写关键行，别直接看答案。</div>
+        </div>
+        <textarea class="ans" id="code-ans" placeholder="在这里默写…">${esc(S.text["code_" + id] || "")}</textarea>
+        <button class="btn primary block" style="margin-top:10px" data-cmask="${id}">对照答案</button>`
+      : `
+        <div class="code-wrap">
+          <div class="code-bar">
+            <span class="code-lang">${esc(c.lang || "code")} · ${codeLines(c.code)} 行</span>
+            <span style="flex:1"></span>
+            <button class="btn sm ghost" data-ccopy="${id}">${ICON("copy", 14)} 复制</button>
+            <button class="btn sm ghost" data-cmask="${id}">遮住默写</button>
+          </div>
+          <pre class="code"><code>${esc(c.code || "")}</code></pre>
+        </div>
+        <textarea class="ans" id="code-ans" placeholder="顺手默一遍，或写你刚才卡在哪…">${esc(S.text["code_" + id] || "")}</textarea>
+
+        <div class="sec">默写要点</div>
+        <div class="card"><ul class="iv-take" style="margin:0">${(c.keys || []).map((k) => `<li>${esc(k)}</li>`).join("")}</ul></div>
+
+        <div class="sec">最容易写错的地方</div>
+        <div class="card"><ul class="iv-take" style="margin:0">${(c.traps || []).map((k) => `<li>${esc(k)}</li>`).join("")}</ul></div>`}
+
+      <div class="sec">自评（决定下次什么时候回来）</div>
+      <div class="card">
+        <div class="btn-row">
+          <button class="btn bad" data-crate="${id}" data-kind="no">写不出来</button>
+          <button class="btn half" data-crate="${id}" data-kind="half">行不太顺</button>
+          <button class="btn ok" data-crate="${id}" data-kind="ok">能默出来</button>
+        </div>
+        <div class="muted" style="margin-top:11px">
+          ${st.n
+            ? `已练 ${st.n} 次 · 当前 Lv${st.box || 0}${st.next ? " · 下次 " + new Date(st.next).toLocaleDateString("sv") : ""}`
+            : "排期与题库同一套：6 小时 / 1 / 3 / 7 / 15 / 30 天。"}
+          <b style="color:var(--tx)">连续两次「能默出来」才算真背下来。</b>
+        </div>
+      </div>
+
+      ${(tbSecs.length || rels.length) ? `<div class="sec">想搞懂原理</div>
+      <div class="card">
+        ${tbSecs.length ? `<div class="note-links">${tbSecs.map((x) => `<button class="btn sm" data-go="#/book/${x.pos ? x.pos.part.id : "P1"}/${x.sid}">教材 ${esc(x.sid)} · ${esc(x.s.t)}</button>`).join("")}</div>` : ""}
+        ${rels.length ? `<div class="note-links" style="margin-top:10px">${rels.map(NOTE_BTN).join("")}</div>` : ""}
+      </div>` : ""}
+
+      ${qs.length ? `<div class="sec">配套真题</div>
+      <ul class="qlist">${qs.map((q) => `<li><button class="qitem" data-go="#/q/${q.id}">
+        <div class="qt">${esc(q.q)}</div>
+        <div class="qm"><span class="tag ${q.freq === "high" ? "hot" : ""}">${q.freq === "high" ? "高频" : "题目"}</span></div>
+      </button></li>`).join("")}</ul>` : ""}
+
+      <div class="btn-row" style="margin:14px 0 30px">
+        ${prev ? `<button class="btn sm" data-go="#/code/${prev.id}">‹ ${esc(prev.t)}</button>` : ""}
+        ${next ? `<button class="btn sm" data-go="#/code/${next.id}">${esc(next.t)} ›</button>` : ""}
+      </div>
+    `;
+
+    const ta = $("#code-ans");
+    if (ta) ta.addEventListener("input", () => {
+      S.text["code_" + id] = ta.value;
+      if (!ta.value) delete S.text["code_" + id];
+      save();
+    });
   }
 
   /* ================= 题库 ================= */
@@ -1093,6 +1330,7 @@
   /* ================= 我的 ================= */
   function renderMe() {
     const tp = bookProgress(), bp = bankProgress(), due = dueList().length;
+    const codep = codeProgress(), codeDue = dueCodeList().length;
     let answers = 0;
     BANK.questions.forEach((q) => { if (S.q[q.id]) answers += S.q[q.id].n || 0; });
     const mods = BANK.modules.map((m) => ({ m, s: masteryOf(m.id) })).filter((x) => x.s.total);
@@ -1122,6 +1360,7 @@
         <div class="kpi"><b>${bp.done}/${bp.total}</b><span>精讲题已练过</span></div>
         <div class="kpi"><b>${readNotes}</b><span>读过的笔记</span></div>
         <div class="kpi"><b>${ivDone}</b><span>可读的访谈笔记</span></div>
+        <div class="kpi"><b>${codep.done}/${codep.total}</b><span>必背代码已默出${codeDue ? " · " + codeDue + " 条到期" : ""}</span></div>
       </div>
 
       <div class="sec">复习队列</div>
@@ -1218,6 +1457,36 @@
       return;
     }
     if (t.dataset.tbnote) askMyNote("tb_" + t.dataset.tbnote, "我对这一节的理解");
+  });
+
+  /* ---- 必背代码：复制 / 遮住默写 / 自评 ---- */
+  document.addEventListener("click", (e) => {
+    const t = e.target.closest("[data-ccopy],[data-cmask],[data-crate]");
+    if (!t) return;
+    if (t.dataset.ccopy) {
+      const c = CODE_BY_ID[t.dataset.ccopy];
+      if (!c) return;
+      const txt = c.code || "";
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(txt).then(() => toast("代码已复制"), () => prompt("手动复制：", txt));
+      } else prompt("手动复制：", txt);
+      return;
+    }
+    if (t.dataset.cmask) {
+      const id = t.dataset.cmask;
+      CODE_MASK[id] = !CODE_MASK[id];
+      renderCodeItem(id);
+      window.scrollTo(0, 0);
+      return;
+    }
+    if (t.dataset.crate) {
+      const id = t.dataset.crate;
+      cRate(id, t.dataset.kind || "half");
+      renderCodeItem(id);
+      const st = S.code[id] || {};
+      toast(st.box >= 2 ? "已背下来 ✓  下次 " + INTERVALS[st.box] + " 天后" : "已排期 · Lv" + (st.box || 0));
+      return;
+    }
   });
   document.addEventListener("click", (e) => {
     const a = e.target.closest("a.wl");

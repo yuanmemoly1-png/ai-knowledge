@@ -3,7 +3,8 @@
 // v8：补齐缺口节（Linux / 测试 / Docker / LLMOps / Computer Use）
 // v9：补齐建议级缺口（Git 协作 / LoRA 实操 / Evals 实操 / 简历包装）
 // v10：设计系统 v4「书斋」——真 SVG 图标 / 中性石墨配色 / 编辑式排版
-const VERSION = "v10-2026-09-17";
+// v11：新增「背码」标签与必背代码库（34 条，含遮罩默写与间隔重复）
+const VERSION = "v11-2026-09-17";
 const SHELL = [
   "./",
   "./index.html",
@@ -29,6 +30,10 @@ const SHELL = [
   "./data/tb-gapb.js",
   "./data/tb-gap2a.js",
   "./data/tb-gap2b.js",
+  "./data/codebank.js",
+  "./data/codebank-codea.js",
+  "./data/codebank-codeb.js",
+  "./data/codebank-codec.js",
   "./data/quotes.js",
   "./data/questions.js",
   "./data/media-bank.js",

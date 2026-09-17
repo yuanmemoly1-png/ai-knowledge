@@ -289,5 +289,64 @@ else {
   console.log(`     分级覆盖: S ${byTierDeep.S}/9 · A+B ${byTierDeep.A + byTierDeep.B}/17`);
 }
 
+// ---- 11. 必背代码 ----
+head("11) 必背代码");
+const CB = W.CODE_BANK;
+const CI = W.CODE_ITEMS;
+if (!CB) bad("CODE_BANK 缺失");
+if (!CI) bad("CODE_ITEMS 缺失");
+if (CB && CI) {
+  const cIds = Object.keys(CI);
+  const order = CB.order || [];
+  const groups = new Set((CB.groups || []).map((g) => g.id));
+  const levels = new Set((CB.levels || []).map((l) => l.id));
+  // 教材节 id 集合（校验 tb 字段用）
+  const bookSecIds = new Set();
+  ((BOOK && BOOK.parts) || []).forEach((p) => (p.chapters || []).forEach((c) => (c.sections || []).forEach((s) => bookSecIds.add(s))));
+
+  ok(`目录 ${order.length} 条 / 正文 ${cIds.length} 条 / ${(CB.groups || []).length} 组 · ${(CB.levels || []).length} 档`);
+
+  const missing = order.filter((id) => !CI[id]);
+  if (missing.length) bad(`目录中 ${missing.length} 条缺正文: ${missing.join(", ")}`);
+  const orphans = cIds.filter((id) => !order.includes(id));
+  if (orphans.length) bad(`正文中有目录外孤儿: ${orphans.join(", ")}`);
+
+  let shortC = 0, longC = 0, badRel2 = 0, badQs2 = 0, badTb = 0, badLv = 0, forbidden = 0;
+  const lineMin = { n: 999, id: "" }, lineMax = { n: 0, id: "" };
+  for (const id of cIds) {
+    const c = CI[id];
+    for (const k of ["id", "t", "group", "level", "scene", "code", "keys", "traps"]) {
+      if (c[k] == null || (Array.isArray(c[k]) && !c[k].length)) bad(`${id}: 字段 ${k} 为空`);
+    }
+    if (c.id !== id) bad(`${id}: id 字段与键不一致`);
+    if (!groups.has(c.group)) { bad(`${id}: 分组不存在 ${c.group}`); badLv++; }
+    if (!levels.has(c.level)) { bad(`${id}: 等级不存在 ${c.level}`); badLv++; }
+    if ((c.keys || []).length > 5) bad(`${id}: keys 超过 5 条（实际 ${c.keys.length}）`);
+    for (const p of c.rel || []) if (!paths.has(p)) { bad(`${id}: 关联笔记不存在 ${p}`); badRel2++; }
+    for (const q of c.qs || []) if (!ids.has(q)) { bad(`${id}: 关联真题不存在 ${q}`); badQs2++; }
+    for (const s of c.tb || []) if (!bookSecIds.has(s)) { bad(`${id}: 关联教材节不存在 ${s}`); badTb++; }
+    const code = String(c.code || "");
+    const ln = code.split("\n").length;
+    if (ln < lineMin.n) { lineMin.n = ln; lineMin.id = id; }
+    if (ln > lineMax.n) { lineMax.n = ln; lineMax.id = id; }
+    if (ln < 10) shortC++;
+    if (ln > 25) longC++;
+    if (code.includes("```") || code.includes("${")) forbidden++;
+  }
+  if (!badRel2) ok("关联笔记引用全部有效");
+  if (!badQs2) ok("关联真题引用全部有效");
+  if (!badTb) ok("关联教材节引用全部有效");
+  if (shortC) bad(`${shortC} 条代码过短（< 10 行）`);
+  if (longC) bad(`${longC} 条代码过长（> 25 行，背不下来）`);
+  if (forbidden) bad(`${forbidden} 条代码含三反引号或未转义 \${`);
+  ok(`代码行数区间：${lineMin.n}（${lineMin.id}）~ ${lineMax.n}（${lineMax.id}）`);
+  const byG = {};
+  for (const id of cIds) byG[CI[id].group] = (byG[CI[id].group] || 0) + 1;
+  console.log("     分组分布: " + (CB.groups || []).map((g) => `${g.name} ${byG[g.id] || 0}`).join(" / "));
+  const byL = {};
+  for (const id of cIds) byL[CI[id].level] = (byL[CI[id].level] || 0) + 1;
+  console.log("     等级分布: " + (CB.levels || []).map((l) => `${l.name} ${byL[l.id] || 0}`).join(" / "));
+}
+
 console.log("\n" + (fail ? `❌ 校验失败：${fail} 项问题` : "✅ 全部校验通过"));
 process.exit(fail ? 1 : 0);

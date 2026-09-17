@@ -31,7 +31,7 @@ for (const hash of ["#/today", "#/book", "#/bank", "#/iv", "#/me"]) {
   console.log(`  svg 图标数: ${info.svgCount}`);
   const tabsBad = info.tabs.filter((t) => !t.hasSvg || t.text);
   if (tabsBad.length) bad(`底部导航有按钮不是 SVG：${tabsBad.map((t) => t.label + "(" + t.text + ")").join(", ")}`);
-  else ok(`底部导航 6 个按钮全是 SVG（${info.tabs.map((t) => t.label).join("/")}）`);
+  else ok(`底部导航 ${info.tabs.length} 个按钮全是 SVG（${info.tabs.map((t) => t.label).join("/")}）`);
   if (info.glyphs.length) bad(`页面仍残留图形符号：${info.glyphs.join(" ")}`);
 }
 await browser.close();

@@ -6,7 +6,7 @@ const root = process.cwd();
 const vaultA = root;
 const vaultB = path.resolve(root, "..", "youtube", "AI-PM-FDE知识库");
 
-const specs = ["tools/textbook/SPEC.md", "tools/textbook/SPEC-P7.md", "tools/textbook/SPEC-GAP.md", "tools/textbook/SPEC-GAP2.md"];
+const specs = ["tools/textbook/SPEC.md", "tools/textbook/SPEC-P7.md", "tools/textbook/SPEC-GAP.md", "tools/textbook/SPEC-GAP2.md", "tools/textbook/SPEC-CODE.md"];
 const paths = new Set();
 for (const rel of specs) {
   const spec = fs.readFileSync(path.join(root, rel), "utf8");
