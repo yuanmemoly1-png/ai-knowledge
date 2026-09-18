@@ -15,13 +15,19 @@ import path from "node:path";
 
 const APPLY = process.argv.includes("--apply");
 const DATA = "interview/data";
+const PMD = "pm/data";
 const CJK = /[\u4e00-\u9fa5]/g;
 const cjkCount = (t) => (t.match(CJK) || []).length;
 
-const files = fs
-  .readdirSync(DATA)
-  .filter((f) => /^tb-.*\.js$/.test(f) || /^codebank(-code[a-c])?\.js$/.test(f))
-  .map((f) => path.join(DATA, f));
+const files = [
+  ...fs.readdirSync(DATA)
+    .filter((f) => /^tb-.*\.js$/.test(f) || /^codebank(-code[a-c])?\.js$/.test(f))
+    .map((f) => path.join(DATA, f)),
+  // PM 站（/pm/data）同样纳入规范化
+  ...(fs.existsSync(PMD)
+    ? fs.readdirSync(PMD).filter((f) => /^pm-[a-e]\.js$/.test(f)).map((f) => path.join(PMD, f))
+    : []),
+];
 
 /* ---------- 规则 A：破折号 → 冒号 ---------- */
 function ruleDash(line) {
@@ -120,7 +126,27 @@ function ruleLabel(line) {
   return { out, hits: 1 };
 }
 
-const tally = { dash: 0, semi: 0, bold: 0, label: 0 };
+/* ---------- 规则 E：PM 站的结构标签轮换 ----------
+   PM 站 27 节都带 `**这一节在全书里的位置**`（10 汉字，恰好触发规则 C 的
+   「整句加粗」红线，且 27 次一字不差）。换成 5 种 ≤9 汉字的说法轮换，
+   一次解决「重复」与「触发加粗红线」两个问题。 */
+const PM_LABEL_VARIANTS = [
+  "这一节的位置",
+  "在全书里的位置",
+  "和相邻章节的分界",
+  "不重复讲的部分",
+  "别处已经讲过的",
+];
+let pmLabelSeq = 0;
+function rulePMLabel(line) {
+  const SRC = "这一节在全书里的位置";
+  if (!line.includes(SRC)) return { out: line, hits: 0 };
+  const v = PM_LABEL_VARIANTS[pmLabelSeq++ % PM_LABEL_VARIANTS.length];
+  const out = line.split("**" + SRC + "**").join("**" + v + "**").split(SRC).join(v);
+  return { out, hits: 1 };
+}
+
+const tally = { dash: 0, semi: 0, bold: 0, label: 0, pmlabel: 0 };
 const samplesAll = { dash: [], semi: [], bold: [] };
 
 for (const f of files) {
@@ -131,19 +157,23 @@ for (const f of files) {
   for (let n = 0; n < lines.length; n++) {
     const raw = lines[n];
     if (/^\s*\/\//.test(raw)) continue;        // 跳过注释行
-    if (!/[——；]|\*\*|和教材其它节的分工/.test(raw)) continue;
+    if (!/[——；]|\*\*|和教材其它节的分工|这一节在全书里的位置/.test(raw)) continue;
 
+    // 顺序有讲究：E 必须在 C 之前，先把 PM 的 10 字标签缩成 ≤9 字，
+    // 否则 C 会先把它的加粗标记剥掉（标签需要保留加粗）。
     const A = ruleDash(raw);
     const B = ruleSemicolon(A.out);
-    const C = ruleBold(B.out);
+    const E = rulePMLabel(B.out);
+    const C = ruleBold(E.out);
     const D = ruleLabel(C.out);
-    if (A.hits || B.hits || C.hits || D.hits) {
+    if (A.hits || B.hits || C.hits || D.hits || E.hits) {
       lines[n] = D.out;
       changed = true;
       tally.dash += A.hits;
       tally.semi += B.hits;
       tally.bold += C.hits;
       tally.label += D.hits;
+      tally.pmlabel += E.hits;
       for (const s of A.samples) if (samplesAll.dash.length < 6) samplesAll.dash.push(s);
       for (const s of B.samples) if (samplesAll.semi.length < 6) samplesAll.semi.push(s);
       for (const s of C.samples) if (samplesAll.bold.length < 6) samplesAll.bold.push(s);
@@ -158,6 +188,7 @@ console.log(`\n规则 A 破折号 → 冒号：处理 ${tally.dash} 处`);
 console.log(`规则 B 长分句分号 → 句号：处理 ${tally.semi} 处`);
 console.log(`规则 C 整句加粗 → 去标记：处理 ${tally.bold} 处`);
 console.log(`规则 D 重复标签轮换：处理 ${tally.label} 处`);
+console.log(`规则 E PM 标签轮换：处理 ${tally.pmlabel} 处`);
 console.log("\n抽样：");
 for (const s of samplesAll.dash) { console.log(`  A 前：…${s.before}`); console.log(`    后：…${s.after}`); }
 for (const s of samplesAll.semi) { console.log(`  B 前：…${s.before}`); console.log(`    后：…${s.after}`); }

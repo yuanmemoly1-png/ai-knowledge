@@ -1402,6 +1402,7 @@
 
       <div class="sec">其它学习站</div>
       <div class="rows">
+        <a class="row" href="../pm/index.html"><span class="row-i">${ICON("chart", 19)}</span><span class="row-b"><span class="row-t">AI 时代的产品经理</span><span class="row-m">六篇课程 + 一手 PM 访谈 + 外部教学资源</span></span><span class="row-x">›</span></a>
         <a class="row" href="../study/index.html"><span class="row-i">${ICON("book", 19)}</span><span class="row-b"><span class="row-t">学习站</span><span class="row-m">全库笔记网页阅读，双链可点、可搜索</span></span><span class="row-x">›</span></a>
         <a class="row" href="../practice/index.html"><span class="row-i">${ICON("spark", 19)}</span><span class="row-b"><span class="row-t">AI 冒险岛</span><span class="row-m">Python 练习场：浏览器里跑真实 Python</span></span><span class="row-x">›</span></a>
         <a class="row" href="../feynman/index.html"><span class="row-i">${ICON("bulb", 19)}</span><span class="row-b"><span class="row-t">费曼学检场</span><span class="row-m">盲讲 → 找差 → 简讲 → 出关，自动排复习</span></span><span class="row-x">›</span></a>
