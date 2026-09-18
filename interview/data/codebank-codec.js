@@ -13,7 +13,7 @@ Object.assign(window.CODE_ITEMS, {
 import torch.nn.functional as F
 
 def self_attention(x, Wq, Wk, Wv, causal=True):
-    # x: (B, T, d_model) —— B 批大小, T 序列长度, d_model 模型维度
+    # x: (B, T, d_model)：B 批大小, T 序列长度, d_model 模型维度
     B, T, C = x.shape
     q = x @ Wq                      # (B, T, d_k)
     k = x @ Wk                      # (B, T, d_k)
@@ -40,7 +40,7 @@ print(out.shape, att.shape)                         # (2,4,4) (2,4,4)`,
       "softmax 归一化的维度是最后一维，即对每个 query 在所有 key 上归一化",
     ],
     traps: [
-      "漏掉 transpose(-2,-1) 直接相乘会报维度错——矩阵乘法要的是 (B,d_k,T)",
+      "漏掉 transpose(-2,-1) 直接相乘会报维度错：矩阵乘法要的是 (B,d_k,T)",
       "掩码忘了 diagonal=1 会把对角线也盖住，第 i 个词连自己都看不到",
       "先 softmax 再掩码：被 mask 的位置已经分到概率，等于没掩",
     ],
@@ -115,7 +115,7 @@ class LayerNorm(nn.Module):
         self.eps = eps
 
     def forward(self, x):
-        # x: (B, T, d_model) —— 归一化的是最后一维（特征维），不是序列维
+        # x: (B, T, d_model)：归一化的是最后一维（特征维），不是序列维
         mu = x.mean(dim=-1, keepdim=True)                  # (B,T,1) 每个 token 各自算均值
         var = x.var(dim=-1, keepdim=True, unbiased=False)  # 有偏方差，训练/推理口径一致
         xhat = (x - mu) / torch.sqrt(var + self.eps)       # (B,T,d_model) 标准化
@@ -126,7 +126,7 @@ y = ln(torch.randn(2, 5, 8))
 print(y.shape, y.mean(-1).abs().max().item())   # (2,5,8) 每个 token 均值≈0`,
     lang: "python",
     keys: [
-      "归一化维度是最后一维（特征维 d_model），不是序列维——每个 token 各自算自己的均值和方差",
+      "归一化维度是最后一维（特征维 d_model），不是序列维：每个 token 各自算自己的均值和方差",
       "只做 (x-mu)/sqrt(var+eps) 会丢掉表达能力，必须再乘 gamma 加 beta 还原",
       "LayerNorm 是逐 token 归一化、BatchNorm 是逐 batch 归一化；序列长度可变时只能用 LayerNorm",
       "方差用有偏估计 unbiased=False，保证训练和推理口径一致",
@@ -153,7 +153,7 @@ print(y.shape, y.mean(-1).abs().max().item())   # (2,5,8) 每个 token 均值≈
     code: `import torch
 
 def step(x_new, Wq, Wk, Wv, cache):
-    # x_new: (B, 1, C) —— 自回归生成时一次只来一个新 token
+    # x_new: (B, 1, C)：自回归生成时一次只来一个新 token
     q = x_new @ Wq                          # (B,1,d_k)
     cache['k'] = torch.cat([cache['k'], x_new @ Wk], dim=1)   # 历史 K 直接追加
     cache['v'] = torch.cat([cache['v'], x_new @ Wv], dim=1)   # 旧 token 不重算
@@ -170,7 +170,7 @@ print(cache['k'].shape, out.shape)          # (1,5,4) (1,1,4)
 # 吃显存的原因：K/V 全程常驻，元素数 ≈ 2*B*t*n_layer*C，随序列长度 t 线性增长`,
     lang: "python",
     keys: [
-      "只缓存 K 和 V，Q 不缓存——每步只算新 token 自己的 q，历史 token 不再重算",
+      "只缓存 K 和 V，Q 不缓存：每步只算新 token 自己的 q，历史 token 不再重算",
       "解码每步的注意力计算量从 O(t^2) 降到 O(t)，省的是算力不是显存",
       "缓存的显存占用 ≈ 2*B*t*n_layer*C，随序列长度线性增长，长上下文时可能超过模型权重",
       "追加用 torch.cat 沿序列维 dim=1，位置不能插错",
@@ -207,7 +207,7 @@ model = get_peft_model(base_model, config)  # base_model 是已加载好的预�
 model.print_trainable_parameters()          # 通常显示不到 1% 可训练
 
 # LoRA 冻结原权重 W，只训一对低秩矩阵 A(r×C)、B(C×r)：
-# 前向变成 Wx + (alpha/r)*B(Ax)，反向只更新 A、B —— 这就是省显存的原因
+# 前向变成 Wx + (alpha/r)*B(Ax)，反向只更新 A、B：这就是省显存的原因
 for name, p in model.named_parameters():
     if 'lora_' not in name:
         assert not p.requires_grad          # 校验：原权重确实一个都没在训`,
@@ -219,7 +219,7 @@ for name, p in model.named_parameters():
       "必须用 requires_grad 校验：非 lora_ 前缀的参数应全部为 False",
     ],
     traps: [
-      "以为 LoRA 会改原权重——它只在旁边加旁路，原权重全程冻死",
+      "以为 LoRA 会改原权重：它只在旁边加旁路，原权重全程冻死",
       "r 和 alpha 的关系搞反，alpha 相对 r 太小会让 LoRA 学不动",
       "target_modules 名字按别的模型抄（不同模型模块名不同），peft 会报找不到模块",
     ],
@@ -236,7 +236,7 @@ for name, p in model.named_parameters():
     t: "softmax 与交叉熵",
     group: "algo",
     level: "algo",
-    scene: "算法岗一面手撕：手写 softmax + 交叉熵，考的不是公式而是数值稳定性——减最大值那步是必答点。",
+    scene: "算法岗一面手撕：手写 softmax + 交叉熵，考的不是公式而是数值稳定性：减最大值那步是必答点。",
     code: `import torch
 import torch.nn.functional as F
 
@@ -279,7 +279,7 @@ print(softmax_ce(logits, y).item())             # 与 F.cross_entropy 完全一�
     t: "评测集与通过率脚本",
     group: "eval",
     level: "must",
-    scene: "AI 应用岗 / Agent 岗二面：给你一批测试用例，让你现场写通过率脚本——看你会不会把「感觉还行」变成可复现的数字。",
+    scene: "AI 应用岗 / Agent 岗二面：给你一批测试用例，让你现场写通过率脚本：看你会不会把「感觉还行」变成可复现的数字。",
     code: `CASES = [
     {'q': '退货要几天', 'must': ['7 天', '退款']},
     {'q': '怎么改地址', 'must': ['订单详情']},
@@ -343,7 +343,7 @@ def llm_judge(question, answer, ref, call_llm):
         return {'score': None, 'reasons': ['解析失败，转人工']}   # 兜底，别让脚本崩
 
 # 已知偏差（必须知道）：
-# 1) 裁判偏爱更长的答案 —— 把长度写进 rubric 或做长度归一，否则长回答白拿分
+# 1) 裁判偏爱更长的答案：把长度写进 rubric 或做长度归一，否则长回答白拿分
 # 2) 裁判偏爱自己模型的输出（self-preference），换一个模型复评更稳
 # 3) 裁判本身要先用人工标注样本校准，否则你不知道它准不准
 
@@ -357,7 +357,7 @@ print(llm_judge('退货几天', '7 天', '政策文档', ok))   # 换 call_llm �
       "已知偏差要提前声明：裁判偏爱更长的答案，也偏爱自己模型的输出",
     ],
     traps: [
-      "只写「给这个答案打个分」——尺度会漂，同一批数据两次跑出两个分",
+      "只写「给这个答案打个分」：尺度会漂，同一批数据两次跑出两个分",
       "JSON 解析不兜底，模型偶尔加 markdown 围栏，脚本当场崩",
       "用同一个模型既生成又评判（self-preference），分数系统性偏高",
     ],
@@ -406,7 +406,7 @@ analyze([
       "错误不再产生新桶时停止（理论饱和），桶的口径由一个人统一",
     ],
     traps: [
-      "把「答错了」当一个桶——那不是归因，桶要落到能改的动作上（改检索 / 改提示词 / 换模型）",
+      "把「答错了」当一个桶：那不是归因，桶要落到能改的动作上（改检索 / 改提示词 / 换模型）",
       "一条失败同时计入多个桶，统计出来的总数和失败数对不上",
       "只统计数量不打印案例 id，报告完下一步还是没方向",
     ],

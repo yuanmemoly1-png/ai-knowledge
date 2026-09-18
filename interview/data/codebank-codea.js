@@ -7,7 +7,7 @@ Object.assign(window.CODE_ITEMS, {
     t: "列表与字典常用操作",
     group: "py",
     level: "must",
-    scene: "面试官丢给你一段接口返回的 JSON（本质是嵌套 dict），让你挑出分数最高的两条、再统计标签各出现几次——第一步就是这套增删改查 + get + sorted。",
+    scene: "面试官丢给你一段接口返回的 JSON（本质是嵌套 dict），让你挑出分数最高的两条、再统计标签各出现几次：第一步就是这套增删改查 + get + sorted。",
     code: `from collections import Counter            # Counter 专门用来计数
 
 msgs = ['hi', 'hello']
@@ -54,7 +54,7 @@ print(uniq, Counter(tags)['ai'])     # Counter 数每个词出现几次`,
     t: "推导式与解包",
     group: "py",
     level: "must",
-    scene: "面试官让你把接口返回的一堆记录里 score 大于阈值的挑出来、字段改名后重组成 dict——不会推导式就只能 for 循环堆十行，差距就在这。",
+    scene: "面试官让你把接口返回的一堆记录里 score 大于阈值的挑出来、字段改名后重组成 dict：不会推导式就只能 for 循环堆十行，差距就在这。",
     code: `nums = [1, 2, 3, 4, 5, 6]
 squares = [n ** 2 for n in nums]                 # 基本式：每个数平方
 evens = [n for n in nums if n % 2 == 0]          # 带 if 过滤：只留偶数
@@ -101,7 +101,7 @@ print(chat('你好', **params))            # ** 在调用处是解包 dict 当�
     t: "字符串处理",
     group: "py",
     level: "must",
-    scene: "把模型返回的一段带空格带换行的文本拆成字段、再拼回 Prompt，是最日常的活；面试常让你现场把 'role:content' 解析成两段。",
+    scene: "把模型返回的一段带空格带换行的文本拆成字段、再拼回 Prompt，是最日常的活。面试常让你现场把 'role:content' 解析成两段。",
     code: `raw = '  Hello, AI World  '
 print(raw.strip())                    # 去首尾空白
 print(raw.strip().lower())            # 变小写
@@ -236,7 +236,7 @@ except ValueError as e:
     t: "函数与类",
     group: "py",
     level: "must",
-    scene: "面试让你「把一段面向过程的脚本改写成类」，考的就是 __init__ 挂属性 + self 传状态；写不出 self 就说明没真写过类。",
+    scene: "面试让你「把一段面向过程的脚本改写成类」，考的就是 __init__ 挂属性 + self 传状态。写不出 self 就说明没真写过类。",
     code: `def chat(prompt, model='gpt-4o', temperature=0.7):   # 默认参数：不传就用默认值
     return f'[{model}|T={temperature}] {prompt}'
 print(chat('你好'), chat('你好', temperature=0))   # 默认值 / 关键字传参
@@ -282,7 +282,7 @@ print(s)`,
     t: "SQL 增删改查四句",
     group: "py",
     level: "must",
-    scene: "面试让你现场写「一张用户表，查出所有来自某城市的用户」，从建表到增删改查一路写下来；用 sqlite3 是因为 Python 自带、当场就能跑。",
+    scene: "面试让你现场写「一张用户表，查出所有来自某城市的用户」，从建表到增删改查一路写下来。用 sqlite3 是因为 Python 自带、当场就能跑。",
     code: `import sqlite3
 
 conn = sqlite3.connect(':memory:')     # 内存库，跑完即销毁，练习用它

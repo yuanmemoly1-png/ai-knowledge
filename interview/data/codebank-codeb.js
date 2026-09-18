@@ -36,7 +36,7 @@ if __name__ == '__main__':
       "client 只建一次，别在函数里反复 new"
     ],
     traps: [
-      "把 API Key 直接写在代码里提交到 Git —— 等于公开银行卡密码",
+      "把 API Key 直接写在代码里提交到 Git：等于公开银行卡密码",
       "base_url 忘写或写错域名，会出现连不上或 404，而不是 401",
       "写成 response.choices.message.content（漏了 [0]）会报 AttributeError"
     ],
@@ -75,7 +75,7 @@ print('messages 现在有', len(messages), '条')                # 3 → 5 → 7
       "历史越长 token 越贵，聊长了必须裁剪（见 ai-context）"
     ],
     traps: [
-      "只 append user 不 append assistant —— 模型看不到自己说过的话，指代立刻断掉",
+      "只 append user 不 append assistant：模型看不到自己说过的话，指代立刻断掉",
       "把 assistant 的内容写成自己编的，或用 role='ai' 这类不存在的角色名",
       "以为改了 system 就等于改了历史，实际上旧消息还在列表里，指令会被历史稀释"
     ],
@@ -112,7 +112,7 @@ stream_answer('用三句话夸一夸 Python')`,
       "流式拿不到完整的 usage，要算账得自己累加或另外调一次"
     ],
     traps: [
-      "把 delta 写成 message —— 会拿到 None 或 AttributeError",
+      "把 delta 写成 message：会拿到 None 或 AttributeError",
       "漏了 flush=True，看起来像一次性输出，白开流式",
       "在循环里做阻塞的重活（写库、调接口），把流式体验又卡回去"
     ],
@@ -204,7 +204,7 @@ print(data['name'] if data else '解析失败，让模型重答一次')`,
       "工具数量控制在 10 个以内，重叠功能要合并，否则模型一定选错"
     ],
     traps: [
-      "description 写成「查询文档」四个字 —— 模型不知道边界，该调时不调、不该调时乱调",
+      "description 写成「查询文档」四个字：模型不知道边界，该调时不调、不该调时乱调",
       "参数全塞进 required，模型被迫瞎填可选参数",
       "schema 里写 city，函数里写 city_name，调用时才炸"
     ],
@@ -218,7 +218,7 @@ print(data['name'] if data else '解析失败，让模型重答一次')`,
     t: "Function Calling 完整循环",
     group: "ai",
     level: "must",
-    scene: "面试官让你「手写一遍工具调用的完整流程」；工程里所有 Agent 框架的最内层都是这 20 行——请求、拿 tool_calls、执行、结果塞回、再请求",
+    scene: "面试官让你「手写一遍工具调用的完整流程」；工程里所有 Agent 框架的最内层都是这 20 行：请求、拿 tool_calls、执行、结果塞回、再请求",
     code: `import json
 
 def run_with_tools(question, tools, funcs, max_steps=5):
@@ -247,7 +247,7 @@ def run_with_tools(question, tools, funcs, max_steps=5):
       "循环终止条件是 msg.tool_calls 为空，不是你自己猜的步数"
     ],
     traps: [
-      "只 append tool 结果不 append msg —— 报错说 tool_call_id 找不到对应请求",
+      "只 append tool 结果不 append msg：报错说 tool_call_id 找不到对应请求",
       "用 for call in msg.tool_calls 时只处理第 0 个，模型并行要 3 个工具就丢 2 个",
       "忘了 max_steps 兜底，模型反复要同一个工具，一路烧钱"
     ],
@@ -296,7 +296,7 @@ def react_agent(question, tools, funcs):
       "system 里要明确要求先写 Thought 再决定动作，否则模型直接跳到 Action"
     ],
     traps: [
-      "用 while True 等到模型自己收敛 —— 模型不收敛时就是无限烧 token",
+      "用 while True 等到模型自己收敛：模型不收敛时就是无限烧 token",
       "只打印 Observation 不回填 messages，trace 好看但循环原地转圈",
       "把 Thought 当成最终答案返回（它有 tool_calls 时 content 不是答案）"
     ],
@@ -378,7 +378,7 @@ emb = {                                     # 真实项目里这些向量来自 
 q = emb['如何申请退款？']
 for text, vec in emb.items():
     print(f'{text} -> {cosine_similarity(q, vec):.3f}')
-# 实测输出：1.000 / 0.987 / 0.271 —— 语义近，分数高`,
+# 实测输出：1.000 / 0.987 / 0.271：语义近，分数高`,
     lang: "python",
     keys: [
       "余弦相似度 = 点积 / 两个模长之积，先归一化再比较方向",
@@ -388,7 +388,7 @@ for text, vec in emb.items():
       "Embedding 负责找得准，LLM 负责答得好，两者可独立替换"
     ],
     traps: [
-      "直接用点积当相似度 —— 未归一化时长度大的向量占便宜，长文档永远排第一",
+      "直接用点积当相似度：未归一化时长度大的向量占便宜，长文档永远排第一",
       "忘了开方或把分母写成 na + nb，数值看起来「也像」，但排序会错",
       "中文知识库用英文 embedding 模型，相似度整体失真"
     ],
@@ -517,7 +517,7 @@ def chat(item: ChatIn):
       "上线时 API Key 从环境变量读，且必须关掉 --reload"
     ],
     traps: [
-      "把 API Key 写进代码或返回给前端 —— 前端拿到 key 等于公开",
+      "把 API Key 写进代码或返回给前端：前端拿到 key 等于公开",
       "路径参数 /todos/{id} 和固定路径 /todos/me 同时存在时固定路径没写在前面，me 被当 id",
       "忘了配 CORS，浏览器里前端调不通却看不到有用的报错"
     ],
@@ -562,7 +562,7 @@ def test_empty_input_rejected(bad):
       "每条断言对应一个真实踩过的坑，别写只为凑覆盖率的测试"
     ],
     traps: [
-      "断言 assert '北京25度' in answer —— 模型换个说法测试就红，最后没人敢跑测试",
+      "断言 assert '北京25度' in answer：模型换个说法测试就红，最后没人敢跑测试",
       "测试里直接调真模型，跑一次几毛钱、还偶发失败",
       "只测正常路径，空输入和解析失败这两条最常见的线上故障反而没覆盖"
     ],
@@ -600,7 +600,7 @@ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]`,
       "密钥用运行时环境变量注入，绝不写进 ENV 提交到镜像"
     ],
     traps: [
-      "先 COPY . . 再装依赖 —— 每次改一行代码都要重装全部依赖",
+      "先 COPY . . 再装依赖：每次改一行代码都要重装全部依赖",
       "绑 127.0.0.1，本机 curl 通、容器外全超时，最难查的一类 bug",
       "把 .env 或 API Key 打进镜像层，镜像一推出去密钥就泄露了"
     ],
