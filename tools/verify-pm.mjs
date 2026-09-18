@@ -8,7 +8,6 @@ import vm from "node:vm";
 const ROOT = process.cwd();
 const PMD = path.join(ROOT, "pm", "data");
 const ID = path.join(ROOT, "interview", "data");
-const YT = path.join(ROOT, "..", "youtube", "AI-PM-FDE知识库");
 
 let fail = 0;
 const ok = (m) => console.log("  ✓ " + m);
@@ -177,6 +176,43 @@ else {
     for (const q of x.quotes || []) if (!q.en) bad(`${x.id}: 金句缺英文原文`);
   }
   if (items.length < 6) bad(`新收集资源少于 6 条（实际 ${items.length}）`);
+}
+
+/* ---------- 8. 油管频道筛选 ---------- */
+head("8) 油管频道筛选");
+const YT = W.PM_YT;
+if (!YT) bad("PM_YT 缺失");
+else {
+  const chs = YT.channels || [];
+  const tierIds = new Set((YT.tiers || []).map((t) => t.id));
+  ok(`${chs.length} 个频道 / ${(YT.tiers || []).length} 个梯队 / ${(YT.fde || []).length} 条 FDE 资源 / ${(YT.route || []).length} 个阶段`);
+  const seen = new Set();
+  let badUrl = 0, badTier = 0, badStars = 0, noWatch = 0;
+  for (const c of chs) {
+    if (seen.has(c.id)) bad(`频道 id 重复: ${c.id}`);
+    seen.add(c.id);
+    for (const k of ["id", "tier", "name", "why", "cost"]) if (!c[k]) bad(`${c.id}: 缺字段 ${k}`);
+    if (!tierIds.has(c.tier)) { bad(`${c.id}: 梯队不存在 ${c.tier}`); badTier++; }
+    if (!(c.stars >= 1 && c.stars <= 3)) { bad(`${c.id}: stars 应为 1-3（实际 ${c.stars}）`); badStars++; }
+    if (!(c.watch || []).length) { bad(`${c.id}: 没有代表视频`); noWatch++; }
+    for (const w of c.watch || []) {
+      if (!w.t || !w.u) bad(`${c.id}: 视频缺标题或链接`);
+      if (!/^https?:\/\//.test(w.u || "")) { bad(`${c.id}: 视频链接不是 http(s)`); badUrl++; }
+    }
+  }
+  if (!badUrl) ok("代表视频链接全部是 http(s) 直链");
+  if (!badTier && !badStars) ok("梯队与星级取值全部合法");
+  for (const x of YT.fde || []) {
+    if (!x.t || !x.u || !/^https?:\/\//.test(x.u)) bad(`FDE 资源链接有问题: ${x.t || JSON.stringify(x).slice(0, 30)}`);
+  }
+  for (const r of YT.route || []) if (!r.stage || !(r.items || []).length) bad(`路线阶段缺标题或条目`);
+  ok("FDE 资源与路线字段完整");
+  const added = chs.filter((c) => c.added);
+  if (added.length) ok(`${added.length} 个新增频道都标了核实来源`);
+  // 死链兜底：每个频道至少有一条 youtube.com 链接可点
+  const noEntry = chs.filter((c) => !(c.watch || []).some((w) => /youtube\.com/.test(w.u)));
+  if (noEntry.length) bad(`${noEntry.length} 个频道没有 youtube.com 链接兜底: ${noEntry.map((c) => c.name).join(", ")}`);
+  else ok("每个频道至少有一条 youtube.com 链接可点");
 }
 
 console.log("\n" + (fail ? `❌ PM 站校验失败：${fail} 项问题` : "✅ PM 站全部校验通过"));

@@ -27,6 +27,7 @@
     link: '<path d="M9.6 14.4a3.6 3.6 0 0 1 0-5.1l2.6-2.6a3.6 3.6 0 0 1 5.1 5.1l-1 1"/><path d="M14.4 9.6a3.6 3.6 0 0 1 0 5.1l-2.6 2.6a3.6 3.6 0 0 1-5.1-5.1l1-1"/>',
     pen: '<path d="M4 20h4.2L19 9.2a2.6 2.6 0 0 0 0-3.7l-.5-.5a2.6 2.6 0 0 0-3.7 0L4 15.8V20Z"/><path d="M13.9 6.1 17.9 10.1"/>',
     chart: '<path d="M4 20h16"/><path d="M7.3 20V12M12 20V5.6M16.7 20v-5.6"/>',
+    yt: '<rect x="2.6" y="5.4" width="18.8" height="13.2" rx="3.4"/><path d="M10.4 9.4 15.6 12l-5.2 2.6V9.4Z"/>',
   };
   function ICON(name, size) {
     const d = ICONS[name] || ICONS.book;
@@ -144,11 +145,12 @@
   const TABS = [
     { id: "today", icon: "today", label: "今日" },
     { id: "course", icon: "book", label: "课程" },
+    { id: "yt", icon: "yt", label: "油管" },
     { id: "iv", icon: "mic", label: "访谈" },
     { id: "teach", icon: "teach", label: "教学" },
     { id: "me", icon: "me", label: "我的" },
   ];
-  const MAP = { today: "today", course: "course", iv: "iv", teach: "teach", me: "me", sec: "course", ivd: "iv" };
+  const MAP = { today: "today", course: "course", yt: "yt", iv: "iv", teach: "teach", me: "me", sec: "course", ivd: "iv" };
   const go = (h) => (location.hash = h);
   function parse() {
     const raw = (location.hash || "#/today").replace(/^#\/?/, "").split("?")[0];
@@ -167,6 +169,7 @@
     else if (seg === "ivd") renderInterview(rest[0]);
     else if (tab === "today") renderToday();
     else if (tab === "course") renderCourse(rest[0]);
+    else if (tab === "yt") renderYt();
     else if (tab === "iv") renderInterviews();
     else if (tab === "teach") renderTeach();
     else if (tab === "me") renderMe();
@@ -383,6 +386,83 @@
         ${next ? `<button class="btn sm" data-go="#/sec/${next.id}">${esc(secTitle(next.id))} ›</button>` : ""}
       </div>
     `;
+  }
+
+  /* ================= 油管 ================= */
+  const YT = window.PM_YT || { tiers: [], channels: [], fde: [], costNotes: [], route: [] };
+  const star = (n) => "★".repeat(n) + "☆".repeat(Math.max(0, 3 - n));
+
+  function renderYt() {
+    const chs = YT.channels || [];
+    const vids = chs.reduce((a, c) => a + (c.watch || []).length, 0);
+    const added = chs.filter((c) => c.added).length;
+
+    $("#view-yt").innerHTML = `
+      <div class="hero">
+        <div class="hero-top">
+          <div style="flex:1;min-width:0">
+            <div class="kicker">筛过的频道 · 不是搜出来的</div>
+            <h1>油管上看什么</h1>
+            <p>${esc(YT.intro || "")}</p>
+          </div>
+        </div>
+        <div class="hero-stats">
+          <div class="hstat"><b>${chs.length}</b><span>个频道</span></div>
+          <div class="hstat"><b>${vids}</b><span>个代表视频</span></div>
+          <div class="hstat"><b>${added}</b><span>本轮新核实</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="sec" style="margin:0 0 8px">先看这条：怎么判断一个频道值不值得做笔记</div>
+        <ul class="iv-take" style="margin:0">
+          ${(YT.costNotes || []).map((t) => `<li>${esc(t)}</li>`).join("")}
+        </ul>
+      </div>
+
+      ${(YT.tiers || []).map((t) => {
+        const sub = chs.filter((c) => c.tier === t.id);
+        if (!sub.length) return "";
+        return `<div class="sec">${esc(t.name)} <span class="n">${sub.length}</span></div>
+        <div class="muted" style="margin:-4px 0 10px">${esc(t.desc)}</div>
+        ${sub.map(ytCard).join("")}`;
+      }).join("")}
+
+      <div class="sec">FDE 一手从业者资源 <span class="n">${(YT.fde || []).length}</span></div>
+      <div class="muted" style="margin:-4px 0 10px">不是访谈，是真实工作与面试的原始材料。</div>
+      ${(YT.fde || []).map((x) => `<a class="row" href="${esc(x.u)}" target="_blank" rel="noopener">
+        <span class="row-i">${ICON("link", 17)}</span>
+        <span class="row-b"><span class="row-t">${esc(x.t)}</span>
+        <span class="row-m"><span class="tag">${esc(x.kind)}</span>${esc(x.note)}</span></span>
+        <span class="row-x">›</span></a>`).join("")}
+
+      <div class="sec">按周执行的路线</div>
+      ${(YT.route || []).map((r) => `<div class="card">
+        <div style="font-size:15.4px;font-weight:650;margin-bottom:6px">${esc(r.stage)}</div>
+        <div class="muted" style="margin-bottom:10px">目标：${esc(r.goal)}</div>
+        <ul class="iv-take" style="margin:0">${(r.items || []).map((i) => `<li>${esc(i)}</li>`).join("")}</ul>
+        <div class="muted" style="margin-top:10px">产出：${esc(r.out)}</div>
+      </div>`).join("")}
+    `;
+  }
+
+  function ytCard(c) {
+    return `<div class="card">
+      <div class="tag-row" style="margin-bottom:9px">
+        <span class="tag hot">${star(c.stars)}</span>
+        <span class="tag">${esc(c.track || "")}</span>
+        ${c.added ? '<span class="tag mid">本轮新核实</span>' : ""}
+      </div>
+      <div style="font-size:16px;font-weight:680;letter-spacing:-.015em">${esc(c.name)}</div>
+      <div class="iv-role" style="margin:6px 0 10px">${esc(c.host || "")}${c.scale && c.scale !== "—" ? " · " + esc(c.scale) : ""}</div>
+      <div style="font-size:14.4px;line-height:1.78;color:var(--tx2)">${esc(c.why || "")}</div>
+      <div class="muted" style="margin-top:10px">取内容：${esc(c.cost || "")}</div>
+      ${(c.watch || []).length ? `<div class="sec" style="margin:16px 0 8px">先看这几期</div>
+      ${c.watch.map((w) => `<a class="row" href="${esc(w.u)}" target="_blank" rel="noopener" style="margin-bottom:8px">
+        <span class="row-i">${ICON("yt", 17)}</span>
+        <span class="row-b"><span class="row-t">${esc(w.t)}</span><span class="row-m">${esc(w.note || "")}</span></span>
+        <span class="row-x">›</span></a>`).join("")}` : ""}
+    </div>`;
   }
 
   /* ================= 访谈 ================= */

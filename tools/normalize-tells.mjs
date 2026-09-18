@@ -25,7 +25,7 @@ const files = [
     .map((f) => path.join(DATA, f)),
   // PM 站（/pm/data）同样纳入规范化
   ...(fs.existsSync(PMD)
-    ? fs.readdirSync(PMD).filter((f) => /^pm-[a-e]\.js$/.test(f)).map((f) => path.join(PMD, f))
+    ? fs.readdirSync(PMD).filter((f) => /^pm-.*\.js$/.test(f)).map((f) => path.join(PMD, f))
     : []),
 ];
 

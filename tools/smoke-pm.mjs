@@ -77,11 +77,12 @@ if (!hashFns.length) bad("app.js 没有注册 hashchange 路由");
 console.log(`已加载 PM 数据 + md.js + app.js`);
 
 /* ---------- 遍历页面 ---------- */
-const OL = sandbox.PM_OUTLINE, SEC = sandbox.PM_SECTIONS, EX = sandbox.PM_EXTRA;
+const OL = sandbox.PM_OUTLINE, SEC = sandbox.PM_SECTIONS, EX = sandbox.PM_EXTRA, YT = sandbox.PM_YT;
 const ROUTES = [
   ["今日", "#/today", "view-today"],
   ["课程目录", "#/course", "view-course"],
   ["篇页 P1", "#/course/P1", "view-course"],
+  ["油管筛选", "#/yt", "view-yt"],
   ["访谈列表", "#/iv", "view-iv"],
   ["教学资源", "#/teach", "view-teach"],
   ["我的", "#/me", "view-me"],
@@ -135,6 +136,21 @@ console.log("\n路由渲染：");
     if (miss.length) bad(`教学页缺 ${miss.length} 条资源`);
     else ok(`教学页列出全部 ${EX.items.length} 条资源`);
   }
+
+  if (YT && YT.channels) {
+    sandbox.location.hash = "#/yt";
+    for (const fn of hashFns) fn();
+    const h = elCache["#view-yt"]._html || "";
+    const missC = YT.channels.filter((c) => h.indexOf(c.name) < 0);
+    if (missC.length) bad(`油管页缺 ${missC.length} 个频道：${missC.map((c) => c.name).join(", ")}`);
+    else ok(`油管页列出全部 ${YT.channels.length} 个频道`);
+    const missF = (YT.fde || []).filter((x) => h.indexOf(x.t.slice(0, 12)) < 0);
+    if (missF.length) bad(`油管页缺 ${missF.length} 条 FDE 资源`);
+    else ok(`油管页列出全部 ${(YT.fde || []).length} 条 FDE 资源`);
+    const missR = (YT.route || []).filter((r) => h.indexOf(r.stage) < 0);
+    if (missR.length) bad(`油管页缺 ${missR.length} 个阶段`);
+    else ok(`油管页列出全部 ${(YT.route || []).length} 个阶段`);
+  } else bad("PM_YT 未挂载");
 
   console.log("\n" + (fail ? `❌ PM 站冒烟失败：${fail} 项` : "✅ PM 站全部页面渲染通过"));
   process.exit(fail ? 1 : 0);

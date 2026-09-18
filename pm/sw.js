@@ -1,5 +1,5 @@
 // PM 站 Service Worker：网络优先 + 离线回落（作用域 ./ 即 /pm/）
-const VERSION = "pm-v1-2026-09-18";
+const VERSION = "pm-v2-2026-09-18";
 const SHELL = [
   "./",
   "./index.html",
@@ -11,6 +11,7 @@ const SHELL = [
   "./data/pm-c.js",
   "./data/pm-d.js",
   "./data/pm-extra.js",
+  "./data/pm-yt.js",
   "./data/pm-questions.js",
   "../interview/assets/style.css",
   "../interview/assets/md.js",
